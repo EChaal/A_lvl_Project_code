@@ -20,8 +20,12 @@ class DataValidator:
 
 
     def username(self, data):
+        # 1 letter from first name
+        # 4 letter from second name
+        # 2 random numbers at end
+        # length of name == 7
         pattern = r'^[a-zA-Z0-9]+$'
-        return bool(re.fullmatch(pattern, data))
+        return len(data) == 7 and bool(re.fullmatch(pattern, data))
 
 
     def birthdate(self, data):
@@ -121,13 +125,13 @@ class TestValidator(unittest.TestCase):
         # Valid names
         valid_names = [
         'Preston',
-        'Tyler',
-        'Spencer',
-        'Millie Hardy',
-        'Ebony-Jane Smith',
+        'Ahmed',
+        'Elyas Chaal',
+        'Hugh Janus',
+        'John Smith',
         'Preston Leighton Tony Shaun Whiteman',
-        'CJ',
-        'J'
+        'AJ',
+        'BBG'
         ]
 
         for name in valid_names:
@@ -137,10 +141,10 @@ class TestValidator(unittest.TestCase):
     def test_invalid_names(self):
         # Invalid names
         invalid_names = [
-        'ca55idy',
+        'Ely4s',
         'pestopasta74',
-        'John.Doe',
-        '#Maria'
+        'Mama-dan',
+        '#Karim'
 ]
 
         for name in invalid_names:
@@ -149,12 +153,12 @@ class TestValidator(unittest.TestCase):
 
     def test_valid_usernames(self):
         valid_usernames = [
-        'username123',
-        'USERNAME',
-        'User123',
-        'user',
-        '1234567890',
-        'abc123XYZ'
+        'EChaa23',
+        'AChaa23',
+        'Utest54',
+        'Uname69',
+        'HOsbo65',
+        'Ksoli96'
 ]
         for username in valid_usernames:
             self.assertTrue(self.validator.username(username))
@@ -164,8 +168,8 @@ class TestValidator(unittest.TestCase):
         # Invalid usernames
         invalid_usernames = [
         'username@',
-        'user name',
-        'user.name',
+        'user-name',
+        'username',
         'user-name',
         'user_name',
         '123@abc'
