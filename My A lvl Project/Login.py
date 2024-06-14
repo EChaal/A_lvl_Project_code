@@ -7,20 +7,12 @@ def login_screen():
     login_window.title('Login screen')
     login_window.geometry('800x500+200+100') # set size of the window
 
-
     ### USERNAME STUFF ###
     user_label = tk.Label(login_window, text='Enter username') # Label above where i will input name
     user_label.grid(row=0, column=0, columnspan=2, pady=10, padx=10)
 
     user_entry = tk.Entry(login_window, width = 15) # Where I will be inputting username
     user_entry.grid(row=1, column=0, padx=10, pady=5)
-
-    def U_submit(): # U_Submit = User submit // Setting up the command
-        user_input = user_entry.get()
-        user_label.config(text=f"You entered: {user_input}")
-
-    user_submit = tk.Button(login_window, text='Submit', command = U_submit)
-    user_submit.grid(row=1, column=1, padx=10, pady=5)
 
     ### PASSWORD STUFF ###
     pass_label = tk.Label(login_window, text='Enter Password')
@@ -29,12 +21,15 @@ def login_screen():
     pass_entry = tk.Entry(login_window, width = 15) # Where I will be inputting password
     pass_entry.grid(row=4, column=0, padx=10, pady=5)
 
-    def P_submit(): # P_Submit = Password submit // Setting up the command
+    ### Submit button ###
+    def Submit():
+        user_input = user_entry.get()
+        user_label.config(text = f'You entered: {user_input}')
         pass_input = pass_entry.get()
-        pass_label.config(text=f"You entered: {pass_input}")
+        pass_label.config(text = f'You entered: {pass_input}')
     
-    pass_submit = tk.Button(login_window, text='Submit', command=P_submit)
-    pass_submit.grid(row=4, column=1, padx=10, pady=5)
+    submit = tk.Button(login_window, text='Submit', command=Submit)
+    submit.grid(row=4, column=1, padx=10, pady=5)
 
 
     login_window.mainloop()
