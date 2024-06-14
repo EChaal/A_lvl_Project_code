@@ -24,9 +24,13 @@ def login_screen():
     ### Submit button ###
     def Submit():
         user_input = user_entry.get()
-        user_label.config(text = f'You entered: {user_input}')
+    #    user_label.config(text = f'You entered: {user_input}')
         pass_input = pass_entry.get()
-        pass_label.config(text = f'You entered: {pass_input}')
+    #    pass_label.config(text = f'You entered: {pass_input}')
+        validate = validate_login_info(user_input,pass_input)
+        user_label.config(text = f'Message: {validate[0]}')
+        pass_label.config(text = f'Message: {validate[1]}')
+
     
     submit = tk.Button(login_window, text='Submit', command=Submit)
     submit.grid(row=4, column=1, padx=10, pady=5)
@@ -34,7 +38,22 @@ def login_screen():
 
     login_window.mainloop()
 
+### Validation inside the login screen ###
+def validate_login_info(username,password):
+    ### validating username ###
+    if validator.username(username):
+        user = True
+    else:
+        user = 'Username does not fit criteria'
+    
+    ### validating password ###
+    if validator.length_check(password,8,'min'):
+        passw = True
+    else:
+        passw = 'Password does not fit criteria'
+    
+    return user, passw
 
 
-validate = DataValidator()
+validator = DataValidator()
 login_screen()
