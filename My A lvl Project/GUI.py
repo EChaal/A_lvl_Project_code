@@ -34,14 +34,14 @@ class GUImaker:
 
     def create_label(self, parent, text, row, column):
         label = tk.Label(parent, text=text)
-        label.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
+        label.grid(row=row, column=column, padx=10, pady=10, sticky="nw")
         self.widgets["labels"].append(label)
         parent.grid_columnconfigure(column, weight=1)  # Center column
         parent.grid_rowconfigure(row, weight=1)        # Center row
 
     def create_button(self, parent, text, row, column):
         button = tk.Button(parent, text=text)
-        button.grid(row=row, column=column, padx=10, pady=10, sticky="nsew")
+        button.grid(row=row, column=column, padx=10, pady=10, sticky="nw")
         self.widgets["buttons"].append(button)
         parent.grid_columnconfigure(column, weight=1)  # Center column
         parent.grid_rowconfigure(row, weight=1)        # Center row
