@@ -5,7 +5,7 @@ class GUImaker:
     def __init__(self, root, title):
         self.root = root
         self.root.title(title)
-        self.root.geometry("800x500")  # Sets the initial window size
+        self.root.geometry("500x300")  # Sets the initial window size
 
         # Create a notebook (tab control)
         self.notebook = ttk.Notebook(root)
@@ -51,8 +51,9 @@ if __name__ == "__main__":
     app = GUImaker(root, title="My Custom GUI")
     
     # Example of adding a new tab dynamically
-    app.add_tab("NewTab")
-    app.create_label(app.tabs["NewTab"], "New Tab Label", 0, 0)
-    app.create_button(app.tabs["NewTab"], "New Tab Button", 1, 0)
+    app.add_tab("Login")
+    app.create_label(app.tabs["Login"], "Username", 0, 0)
+    app.create_button(app.tabs["Login"], "Submit", 1, 1)
+    app.create_label(app.tabs["Login"], "MOOOOOOREEE", 1, 0)
 
     root.mainloop()
