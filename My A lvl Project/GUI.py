@@ -19,7 +19,7 @@ class GUImaker:
         # Dictionary to store widgets
         self.widgets = {"labels": [], "buttons": []}
 
-        # Example usage
+        # Example of what can be done
         self.create_label(self.tabs["Settings"], "Settings Label", 0, 0)
         self.create_button(self.tabs["Settings"], "Settings Button", 1, 0)
         self.create_label(self.tabs["Help"], "Help Label", 0, 0)
