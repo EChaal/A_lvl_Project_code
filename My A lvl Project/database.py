@@ -19,3 +19,28 @@ def create_table():
     ''')
     conn.commit()
     conn.close()
+
+def add_transaction(description, amount, date):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO transactions (description, amount, date)
+        VALUES (?,?,?)
+    ''',(description, amount, date))
+    conn.commit()
+    conn.close()
+
+def get_transactions():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM transactions')
+    transactions = cursor.fetchall()
+    conn.close()
+    return transactions
+
+def delete_transaction(transaction_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM transactions WHERE id = ?', (transaction_id,))
+    conn.commit()
+    conn.close()
