@@ -32,7 +32,7 @@ def create_main_window(root):
     add_button = tk.Button(root, text='Add transaction', command=add_transaction)
     add_button.pack(pady=10)
 
-    transactions_txt = tk.Text(root, width=40, height=10)
+    transactions_txt = tk.Text(root, width=50, height=10)
     transactions_txt.pack(pady=20)
 
     def display_transactions():
@@ -41,4 +41,47 @@ def create_main_window(root):
         for transaction in transactions:
             transactions_txt.insert(tk.END, f'{transaction}\n')
     
+    def delete_transaction():
+        transaction_id = int(transaction_id_entry.get())
+        db.delete_transaction(transaction_id)
+        display_transactions()
+        update_summary()
+    
+
+    transaction_id_label = tk.Label(root, text='Transaction ID to delete: ')
+    transaction_id_label.pack()
+    transaction_id_entry = tk.Entry(root)
+    transaction_id_entry.pack()
+
+    delete_button = tk.Button(root, text='Delete Transaction', command=delete_transaction)
+    delete_button.pack(pady=10)
+
+    summary_label = tk.Label(root, text='Transaction summary', font=('Helvetica', 14))
+    summary_label.pack(pady = 10)
+
+    summary_txt = tk.Text(root, width=40, height=5)
+    summary_txt.pack(pady=20)
+
+    def update_summary():
+        transactions = db.get_transactions()
+        total_income = 0
+        total_expenses = 0
+
+        for transaction in transactions:
+            amount = transaction[2]
+            if amount > 0:
+                total_income += amount
+            else:
+                total_expenses += -amount # Minus because we need to make expenses positive for display
+        
+        balance = total_income - total_expenses
+
+        summary_txt.delete(1.0, tk.END)
+        summary_txt.insert(tk.END, f'Total income: {total_income} \n')
+        summary_txt.insert(tk.END, f'Total expenses: {total_expenses} \n')
+        summary_txt.insert(tk.END, f'Balance: {balance}')
+
+    
     display_transactions() # Shpws all existing transactions
+
+    update_summary() # Update the summary initially
