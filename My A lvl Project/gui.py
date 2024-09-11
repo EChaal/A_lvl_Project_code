@@ -13,30 +13,58 @@ def create_main_window(root):
     description_entry = tk.Entry(root)
     description_entry.pack()
 
-    amount_label = tk.Label(root, text='Amount: ')
-    amount_label.pack()
-    amount_entry = tk.Entry(root)
-    amount_entry.pack()
+    #amount_label = tk.Label(root, text='Amount: ')
+    #amount_label.pack()
+    #amount_entry = tk.Entry(root)
+    #amount_entry.pack()
 
     date_label = tk.Label(root, text='Date (YYYY-MM-DD): ')
     date_label.pack()
     date_entry = tk.Entry(root)
     date_entry.pack()
 
-    def add_transaction():
+    ### Set up income and expenses buttons
+
+    income_label = tk.Label(root, text='Income Amount: ')
+    income_label.pack()
+    income_entry = tk.Entry(root)
+    income_entry.pack()
+
+    expense_label = tk.Label(root, text='Expense amount: ')
+    expense_label.pack()
+    expense_entry = tk.Entry(root)
+    expense_entry.pack()
+
+    def add_income():
         desc = description_entry.get()
-        amount = float(amount_entry.get())
+        income = float(income_entry.get())
         date = date_entry.get()
-        db.add_transaction(desc, amount, date)
+
+        # Add income (positive)
+
+        db.add_transaction(desc, income, date)
         display_transactions()
         update_summary()
     
-    add_button = tk.Button(root, text='Add transaction', command=add_transaction)
-    add_button.pack(pady=10)
+    def add_expense():
+        desc = description_entry.get()
+        expense = -float(expense_entry.get())
+        date = date_entry.get()
 
-    #transactions_txt = tk.Text(root, width=50, height=10)
-    #transactions_txt.pack(pady=20)
+        # Add expense (negative)
 
+        db.add_transaction(desc, expense, date)
+        display_transactions()
+        update_summary()
+    
+    # buttons for adding expense / income
+
+    add_income_button = tk.Button(root, text='Add Income', command=add_income)
+    add_income_button.pack(pady=10)
+
+    add_expense_button = tk.Button(root, text='Add Expense', command=add_expense)
+    add_expense_button.pack(pady=10)
+    
     ### Create a treeview widget to view transactions more clearly
 
     columns = ('ID', 'Description', 'Amount', 'Date')
