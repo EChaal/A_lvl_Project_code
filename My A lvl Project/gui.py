@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import database as db
 
 def create_main_window(root):
@@ -28,18 +29,44 @@ def create_main_window(root):
         date = date_entry.get()
         db.add_transaction(desc, amount, date)
         display_transactions()
+        update_summary()
     
     add_button = tk.Button(root, text='Add transaction', command=add_transaction)
     add_button.pack(pady=10)
 
-    transactions_txt = tk.Text(root, width=50, height=10)
-    transactions_txt.pack(pady=20)
+    #transactions_txt = tk.Text(root, width=50, height=10)
+    #transactions_txt.pack(pady=20)
+
+    ### Create a treeview widget to view transactions more clearly
+
+    columns = ('ID', 'Description', 'Amount', 'Date')
+    transactions_tree = ttk.Treeview(root, columns=columns, show='headings')
+
+    # Define headings
+
+    transactions_tree.heading('ID', text='ID')
+    transactions_tree.heading('Description', text='Description')
+    transactions_tree.heading('Amount', text='Amount')
+    transactions_tree.heading('Date', text='Date')
+
+    # Define column widths
+
+    transactions_tree.column('ID', width=50)
+    transactions_tree.column('Description', width=150)
+    transactions_tree.column('Amount', width=100)
+    transactions_tree.column('Date', width=100)
+
+    transactions_tree.pack(pady=20)
 
     def display_transactions():
-        transactions_txt.delete(1.0, tk.END)
+        # Clear the treeview
+        for row in transactions_tree.get_children():
+            transactions_tree.delete(row)
+        # Insert existing transactions into treeview
         transactions = db.get_transactions()
         for transaction in transactions:
-            transactions_txt.insert(tk.END, f'{transaction}\n')
+            transactions_tree.insert('', tk.END, values=transaction)
+        
     
     def delete_transaction():
         transaction_id = int(transaction_id_entry.get())

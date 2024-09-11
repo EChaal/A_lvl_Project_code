@@ -8,3 +8,4 @@ if __name__ == "__main__":
     root.title("Personal Finance Tracker")
     create_main_window(root)
     root.mainloop()
+    

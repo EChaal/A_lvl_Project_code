@@ -32,6 +32,11 @@ class DataValidator:
         if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 1900 < int(data[:4]) < 2020 and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
             return True
         return False
+    
+    def date(self, data):
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
+            return True
+        return False
 
 
     def age(self, data):
