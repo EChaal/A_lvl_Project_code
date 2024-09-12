@@ -12,7 +12,7 @@ if __name__ == "__main__":
     root.title("Personal Finance Tracker")
 
     # Create a welcome window
-    create_welcome_window()
+    #create_welcome_window()
 
     create_main_window(root)
     root.mainloop()
