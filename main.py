@@ -1,5 +1,6 @@
 import tkinter as tk
-from gui import create_main_window, create_registration_window, create_login_window, create_welcome_window
+from gui import create_main_window
+from login_gui import create_welcome_window, create_login_window, create_registration_window
 from database import create_table, create_user_table
 
 if __name__ == "__main__":
