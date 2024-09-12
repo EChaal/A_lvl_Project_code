@@ -1,11 +1,19 @@
 import tkinter as tk
-from gui import create_main_window
-from database import create_table
+from gui import create_main_window, create_registration_window, create_login_window, create_welcome_window
+from database import create_table, create_user_table
 
 if __name__ == "__main__":
-    create_table() # Set up a table in database
+    # Create the neccesary tables
+    create_user_table() # user table
+    create_table() # transaction table
+    
+    # Create the root window
     root = tk.Tk()
     root.title("Personal Finance Tracker")
+
+    # Create a welcome window
+    create_welcome_window()
+
     create_main_window(root)
     root.mainloop()
     
