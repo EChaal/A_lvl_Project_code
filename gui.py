@@ -15,7 +15,7 @@ def create_main_window(root):
     description_entry.grid(row=1, column=1, padx=10, pady=5)
 
     amount_label = tk.Label(root, text='Amount: ')
-    amount_label.grid(row=2, column=0, sticky=tk.W, padx=10, pady=5) 
+    amount_label.grid(row=2, column=0, sticky=tk.W, padx=10, pady=5)
     amount_entry = tk.Entry(root)
     amount_entry.grid(row=2, column=1, padx=10, pady=5)
 
@@ -24,7 +24,7 @@ def create_main_window(root):
     transaction_type = tk.StringVar(value='expense')
     income_radio = tk.Radiobutton(root, text='Income', variable=transaction_type, value='income')
     expense_radio = tk.Radiobutton(root, text='Expense', variable=transaction_type, value='expense')
-    
+
     income_radio.grid(row=2, column=2, padx=10, pady=5, sticky=tk.W)
     expense_radio.grid(row=2, column=3, padx=10, pady=5, sticky=tk.W)
 
@@ -40,14 +40,14 @@ def create_main_window(root):
         amount = float(amount_entry.get())
         date = date_entry.get()
 
-        #Check if income or expense 
+        #Check if income or expense
         if transaction_type.get() == 'expense':
             amount = -amount # Make expenses negative
-        
+        # Add this to the finance table
         db.add_transaction(desc, amount, date)
         display_transactions()
         update_summary()
-    
+
     add_button = tk.Button(root, text='Add Transaction', command=add_transaction)
     add_button.grid(row=4, column=0, columnspan=4, padx=10, pady=5)
 
@@ -81,23 +81,24 @@ def create_main_window(root):
         transactions = db.get_transactions()
         for transaction in transactions:
             transactions_tree.insert('', tk.END, values=transaction)
-        
-    
+
     def delete_transaction():
         transaction_id = int(transaction_id_entry.get())
         db.delete_transaction(transaction_id)
         display_transactions()
         update_summary()
-    
 
+    # Setting up transaction delete entry
     transaction_id_label = tk.Label(root, text='Transaction ID to delete: ')
     transaction_id_label.grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
     transaction_id_entry = tk.Entry(root)
     transaction_id_entry.grid(row=6, column=1, padx=10, pady=5)
-
+    # Setting up delete button
     delete_button = tk.Button(root, text='Delete Transaction', command=delete_transaction)
     delete_button.grid(row=6, column=2, columnspan=2, pady=10)
 
+
+    ### Summary section ###
     summary_label = tk.Label(root, text='Transaction summary', font=('Helvetica', 14))
     summary_label.grid(row=7, column=0, columnspan=4, pady=10)
 
@@ -115,16 +116,14 @@ def create_main_window(root):
                 total_income += amount
             else:
                 total_expenses += -amount # Minus because we need to make expenses positive for display
-        
+        # Work out balance
         balance = total_income - total_expenses
 
         summary_txt.delete(1.0, tk.END)
         summary_txt.insert(tk.END, f'Total income: {total_income} \n')
         summary_txt.insert(tk.END, f'Total expenses: {total_expenses} \n')
         summary_txt.insert(tk.END, f'Balance: {balance}')
-        
 
-    
     display_transactions() # Shpws all existing transactions
 
     update_summary() # Update the summary initially

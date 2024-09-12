@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # Create the neccesary tables
     create_user_table() # user table
     create_table() # transaction table
-    
+
     # Create the root window
     root = tk.Tk()
     root.title("Personal Finance Tracker")
@@ -17,4 +17,3 @@ if __name__ == "__main__":
 
     create_main_window(root)
     root.mainloop()
-    
