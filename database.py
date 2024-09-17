@@ -4,6 +4,9 @@ import random
 def connect_db():
     # Connect to the SQLite database
     conn = sqlite3.connect('finance_tracker.db')
+
+    # Enable foreign key support
+    conn.execute('PRAGMA foreign_keys = ON')
     return conn
 
 def create_table():
@@ -15,26 +18,30 @@ def create_table():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             description TEXT NOT NULL,
             amount REAL NOT NULL,
-            date TEXT NOT NULL
+            date TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(userid) ON DELETE CASCADE
         )
     ''')
     conn.commit()
     conn.close()
 
-def add_transaction(description, amount, date):
+def add_transaction(description, amount, date, user_id):
+    print(f'Adding transaction: {description}, {amount}, {date}, {user_id}')
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO transactions (description, amount, date)
-        VALUES (?,?,?)
-    ''',(description, amount, date))
+        INSERT INTO transactions (description, amount, date, user_id)
+        VALUES (?,?,?,?)
+    ''',(description, amount, date, user_id))
     conn.commit()
     conn.close()
 
-def get_transactions():
+def get_transactions(user_id):
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM transactions')
+    cursor.execute('PRAGMA foreign_keys = ON')
+    cursor.execute('SELECT * FROM transactions WHERE user_id = ?', (user_id,))
     transactions = cursor.fetchall()
     conn.close()
     return transactions
@@ -93,14 +100,18 @@ def add_user(first_name, last_name, password):
     conn.commit()
     conn.close()
     return username # Return the generated username to show the user
-    
+
 
 def check_user(username, password):
     conn = connect_db()
     cursor = conn.cursor()
+    cursor.execute('PRAGMA foreign_keys = ON')
     cursor.execute('''
         SELECT * FROM users WHERE username = ? AND password = ?
     ''', (username, password))
     user = cursor.fetchone()
     conn.close()
-    return user is not None
+    if user:
+        return user[0]
+    else:
+        return None

@@ -1,37 +1,30 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 import database as db
+import gui
+import globals
 
-def create_welcome_window():
-    # Create the root window
-    root = tk.Tk()
-    root.title("Personal Finance Tracker")
+# Declare a global variable for the current user ID
+current_user_id = None
 
-    # Create a login and registration window first
-    def open_login_window():
-        create_login_window(root)
-
-    def open_registration_window():
-        create_registration_window()
-
+def create_welcome_window(root):
+    # Set up welcome window (root window)
     welcome_label = tk.Label(root, text="Welcome to the Personal Finance Tracker")
     welcome_label.grid(row=0, column=0, columnspan=2, pady=20)
 
-    register_button = tk.Button(root, text="Register", command=open_registration_window)
-    register_button.grid(row=1, column=0, padx=10, pady=10)
+    # Create a login button
+    login_button = tk.Button(root, text='Login', command=lambda:create_login_window(root))
+    login_button.grid(row=1, column=0, padx=10, pady=10)
 
-    login_button = tk.Button(root, text="Login", command=open_login_window)
-    login_button.grid(row=1, column=1, padx=10, pady=10)
-
-    root.mainloop()
-
-
-
+    # Create a register button
+    register_button = tk.Button(root, text='Register', command=lambda:create_registration_window(root))
+    register_button.grid(row=1, column=1, padx=10, pady=10)
 
 def create_login_window(root):
-    #Create a separate window for login
-    login_window = tk.Toplevel()
+    global current_user_id
+
+    # Create a separate window for login
+    login_window = tk.Toplevel(root)
     login_window.title('Login')
 
     username_label = tk.Label(login_window, text='Username: ')
@@ -44,24 +37,32 @@ def create_login_window(root):
     password_entry = tk.Entry(login_window, show='*')
     password_entry.grid(row=1, column=1, padx=10, pady=5)
 
+
     def login():
+        global current_user_id
         username = username_entry.get()
         password = password_entry.get()
-        # Add validation here later
-        # Checks if the user exists in the database
-        if db.check_user(username, password):
-            login_window.destroy()
-            root.deiconify()
+
+        # Get the userID from the database if login is successful
+        user_id = db.check_user(username, password)
+
+        if user_id:
+            globals.current_user_id = user_id  # Set the current_user_id
+            login_window.destroy()  # Close login window
+
+            # Show the main application window
+            root.deiconify()  # Show the root window
+            gui.create_main_window(tk.Toplevel(root), globals.current_user_id)  # Pass the root to create_main_window
         else:
             error_label = tk.Label(login_window, text='Incorrect username or password')
             error_label.grid(row=2, column=0, columnspan=2)
-    
+
     login_button = tk.Button(login_window, text='Login', command=login)
     login_button.grid(row=2, column=0, columnspan=2, pady=10)
 
-def create_registration_window():
+def create_registration_window(root):
     # Create a separate window for registration
-    registration_window = tk.Toplevel()
+    registration_window = tk.Toplevel(root)
     registration_window.title('Register')
 
     first_name_label = tk.Label(registration_window, text='First name: ')
@@ -83,7 +84,7 @@ def create_registration_window():
         first_name = first_name_entry.get()
         last_name = last_name_entry.get()
         password = password_entry.get()
-        # Add validation here later
+
         # Add the user to the database
         username = db.add_user(first_name, last_name, password)
         registration_window.destroy()
