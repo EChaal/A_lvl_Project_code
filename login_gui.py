@@ -3,6 +3,7 @@ from tkinter import messagebox
 import database as db
 import gui
 import globals
+from validator import DataValidator
 
 # Declare a global variable for the current user ID
 current_user_id = None
@@ -22,7 +23,7 @@ def create_welcome_window(root):
 
 def create_login_window(root):
     global current_user_id
-
+    validate = DataValidator()
     # Create a separate window for login
     login_window = tk.Toplevel(root)
     login_window.title('Login')
@@ -42,6 +43,10 @@ def create_login_window(root):
         global current_user_id
         username = username_entry.get()
         password = password_entry.get()
+        # Validate the data
+        if validate.is_non_empty_string(username) == False and validate.is_non_empty_string(password) == False and validate.is_valid_username(username) == False:
+            messagebox.showerror('Error', 'Please enter a valid username and password')
+            return
 
         # Get the userID from the database if login is successful
         user_id = db.check_user(username, password)
@@ -61,6 +66,7 @@ def create_login_window(root):
     login_button.grid(row=2, column=0, columnspan=2, pady=10)
 
 def create_registration_window(root):
+    validate = DataValidator()
     # Create a separate window for registration
     registration_window = tk.Toplevel(root)
     registration_window.title('Register')
@@ -84,7 +90,10 @@ def create_registration_window(root):
         first_name = first_name_entry.get()
         last_name = last_name_entry.get()
         password = password_entry.get()
-
+        # Validate the data
+        if validate.is_non_empty_string(first_name) == False and validate.is_non_empty_string(last_name) == False and validate.is_non_empty_string(password) == False:
+            messagebox.showerror('Error', 'Please enter a valid first name, last name and password')
+            return
         # Add the user to the database
         username = db.add_user(first_name, last_name, password)
         registration_window.destroy()

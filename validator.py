@@ -1,4 +1,5 @@
 import re
+
 class DataValidator:
 
     def is_integer(self, data):
@@ -14,16 +15,13 @@ class DataValidator:
         return isinstance(data, str) and bool(data.strip())
 
     def is_positive_number(self, data):
-        return isinstance(data, (int, float)) and data > 0
+        return isinstance(data, (int, float)) and data >= 0  # Allow zero as well
 
     def is_in_range(self, min_value, max_value, data):
-        if isinstance(data, (int, float)):
-            return min_value <= data <= max_value
-        return False
+        return isinstance(data, (int, float)) and min_value <= data <= max_value
 
     def email(self, data):
-        # Checks weather the email is valid
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(?:\.[a-zA-Z]{2,}|(?:\d{1,3}\.){3}\d{1,3})$'
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.fullmatch(pattern, data))
 
     def is_valid_username(self, data):
@@ -31,33 +29,23 @@ class DataValidator:
         return len(data) == 7 and bool(re.fullmatch(pattern, data))
 
     def birthdate(self, data):
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 1900 < int(data[:4]) < 2020 and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
-            return True
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', data):
+            year, month, day = map(int, data.split('-'))
+            return 1900 < year < 2020 and 1 <= month <= 12 and 1 <= day <= 31
         return False
 
     def date(self, data):
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
-            return True
-        return False
-
-    def birthdate(self, data):
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 1900 < int(data[:4]) < 2020 and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
-            return True
-        return False
-
-    def date(self, data):
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', data) and 0 < int(data[5:7]) < 13 and 0 < int(data[8:10]) < 32:
-            return True
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', data):
+            year, month, day = map(int, data.split('-'))
+            return 1 <= month <= 12 and 1 <= day <= 31
         return False
 
     def length_check(self, data, length, option):
+        data_len = len(data)
         if option == 'min':
-            if len(data) >= length:
-                return True
+            return data_len >= length
         elif option == 'max':
-            if len(data) <= length:
-                return True
+            return data_len <= length
         elif option == 'equal':
-            if len(data) == length:
-                return True
+            return data_len == length
         return False

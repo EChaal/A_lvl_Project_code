@@ -4,9 +4,12 @@ from tkinter import *
 from tkcalendar import DateEntry
 import database as db
 import globals
+from validator import DataValidator
 
 
 def create_main_window(main_window, current_user_id):
+    # set up the validator
+    validate = DataValidator()
     # Set up the main window
     main_window.title('Personal Finance Tracker - Main Window')
 
@@ -49,6 +52,11 @@ def create_main_window(main_window, current_user_id):
         desc = description_entry.get()
         amount = float(amount_entry.get())
         date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
+
+        # Validate the data
+        if validate.is_non_empty_string(desc) == False and validate.is_positive_number(amount) == False:
+            messagebox.showerror('Error', 'Please enter a valid description and amount')
+            return
 
         if current_user_id is None:
             messagebox.showerror('Error', 'You must be logged in to add a transaction')
@@ -107,6 +115,10 @@ def create_main_window(main_window, current_user_id):
 
     def delete_transaction():
         transaction_id = int(transaction_id_entry.get())
+        # validate the transaction id
+        if validate.is_positive_number(transaction_id) == False:
+            messagebox.showerror('Error', 'Transaction ID isnt valid')
+            return
         db.delete_transaction(transaction_id)
         display_transactions()
         update_summary()
