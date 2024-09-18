@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import *
+from tkcalendar import DateEntry
 import database as db
 import globals
 
@@ -35,19 +36,19 @@ def create_main_window(main_window, current_user_id):
 
     date_label = tk.Label(main_window, text='Date (YYYY-MM-DD): ')
     date_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
-    date_entry = tk.Entry(main_window)
+    date_entry = DateEntry(main_window, width=12, background='darkblue', foreground='white', borderwidth=2)
     date_entry.grid(row=3, column=1, padx=10, pady=5)
 
     def clear_entries():
         amount_entry.delete(0, END)
         description_entry.delete(0, END)
-        date_entry.delete(0, END)
         transaction_id_entry.delete(0, END)
+        date_entry.set_date(date_entry._date.today()) # Reset date to today
 
     def add_transaction():
         desc = description_entry.get()
         amount = float(amount_entry.get())
-        date = date_entry.get()
+        date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
 
         if current_user_id is None:
             messagebox.showerror('Error', 'You must be logged in to add a transaction')
