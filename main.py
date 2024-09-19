@@ -24,3 +24,9 @@ def Main():
 
 if __name__ == "__main__":
     Main()
+
+    # Add 2FA to the application
+    # Add a way such that there is a type to search feature in the application
+    # Add a way to sort the transactions by date
+    # Add a way to sort the transactions by amount
+    # Add a way to sort the transactions by the type of transaction

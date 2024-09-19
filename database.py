@@ -1,5 +1,8 @@
 import sqlite3
 import random
+from security import hash_password
+
+
 
 def connect_db():
     # Connect to the SQLite database
@@ -91,6 +94,8 @@ def username_exists(username):
 
 def add_user(first_name, last_name, password):
     username = generate_username(first_name, last_name)
+    # Add hashing later
+    # hashed_password = hash_password(password)
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
@@ -101,14 +106,13 @@ def add_user(first_name, last_name, password):
     conn.close()
     return username # Return the generated username to show the user
 
-
 def check_user(username, password):
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
     cursor.execute('''
         SELECT * FROM users WHERE username = ? AND password = ?
-    ''', (username, password))
+    ''', (username, password ))
     user = cursor.fetchone()
     conn.close()
     if user:

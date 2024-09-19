@@ -50,7 +50,11 @@ def create_main_window(main_window, current_user_id):
 
     def add_transaction():
         desc = description_entry.get()
-        amount = float(amount_entry.get())
+        amount = amount_entry.get()
+        if validate.is_non_empty_string(amount) == False:
+            messagebox.showerror('Error', 'Please enter a valid amount')
+            return
+        amount = float(amount)
         date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
 
         # Validate the data

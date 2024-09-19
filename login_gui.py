@@ -4,6 +4,7 @@ import database as db
 import gui
 import globals
 from validator import DataValidator
+from security import hash_password
 
 # Declare a global variable for the current user ID
 current_user_id = None
@@ -47,9 +48,10 @@ def create_login_window(root):
         if validate.is_non_empty_string(username) == False and validate.is_non_empty_string(password) == False and validate.is_valid_username(username) == False:
             messagebox.showerror('Error', 'Please enter a valid username and password')
             return
-
+        # hashed password
+        hashed_password = hash_password(password)
         # Get the userID from the database if login is successful
-        user_id = db.check_user(username, password)
+        user_id = db.check_user(username, hashed_password)
 
         if user_id:
             globals.current_user_id = user_id  # Set the current_user_id
@@ -59,8 +61,7 @@ def create_login_window(root):
             root.deiconify()  # Show the root window
             gui.create_main_window(tk.Toplevel(root), globals.current_user_id)  # Pass the root to create_main_window
         else:
-            error_label = tk.Label(login_window, text='Incorrect username or password')
-            error_label.grid(row=2, column=0, columnspan=2)
+            messagebox.showerror('Error', 'Invalid username or password')
 
     login_button = tk.Button(login_window, text='Login', command=login)
     login_button.grid(row=2, column=0, columnspan=2, pady=10)
@@ -94,8 +95,10 @@ def create_registration_window(root):
         if validate.is_non_empty_string(first_name) == False and validate.is_non_empty_string(last_name) == False and validate.is_non_empty_string(password) == False:
             messagebox.showerror('Error', 'Please enter a valid first name, last name and password')
             return
+        # hashed password
+        hashed_password = hash_password(password)
         # Add the user to the database
-        username = db.add_user(first_name, last_name, password)
+        username = db.add_user(first_name, last_name, hashed_password)
         registration_window.destroy()
 
         # Display the username
