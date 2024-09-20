@@ -20,7 +20,7 @@ class DataValidator:
     def is_in_range(self, min_value, max_value, data):
         return isinstance(data, (int, float)) and min_value <= data <= max_value
 
-    def email(self, data):
+    def is_valid_email(self, data):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.fullmatch(pattern, data))
 
@@ -49,3 +49,7 @@ class DataValidator:
         elif option == 'equal':
             return data_len == length
         return False
+
+    def is_valid_phone_number(self, data):
+        pattern = r'^(?:\+44|07)\d{9,10}$'
+        return bool(re.fullmatch(pattern, data))

@@ -65,6 +65,10 @@ def create_user_table():
         CREATE TABLE IF NOT EXISTS users (
             userid INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
+            firstname TEXT NOT NULL,
+            lastname TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL,
             password TEXT NOT NULL
         )
     ''')
@@ -92,16 +96,16 @@ def username_exists(username):
     conn.close()
     return user is not None
 
-def add_user(first_name, last_name, password):
+def add_user(first_name, last_name, password, email, phone):
     username = generate_username(first_name, last_name)
     # Add hashing later
     # hashed_password = hash_password(password)
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO users (username, password)
-        VALUES (?,?)
-    ''', (username, password))
+        INSERT INTO users (username, firstname, lastname, email, phone, password)
+        VALUES (?,?,?,?,?,?)
+    ''', (username, first_name, last_name, email, phone, password))
     conn.commit()
     conn.close()
     return username # Return the generated username to show the user
