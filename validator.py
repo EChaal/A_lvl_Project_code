@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 class DataValidator:
 
@@ -53,3 +54,9 @@ class DataValidator:
     def is_valid_phone_number(self, data):
         pattern = r'^(?:\+44|07)\d{9,10}$'
         return bool(re.fullmatch(pattern, data))
+
+    def in_future(self, data):
+        # data is given as a string in the format YYYY-MM-DD
+        year, month, day = map(int, data.split('-'))
+        today = datetime.today()
+        return datetime(year, month, day) > today

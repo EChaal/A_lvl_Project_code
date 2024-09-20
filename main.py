@@ -26,8 +26,9 @@ if __name__ == "__main__":
     Main()
 
     # Add back button to login and registration to go back to the welcome window
+    # Add forgot password feature
+    # Add a toolbar on main window with buttons for settings, logout, and help
     # Add 2FA to the application
-    # Add a way such that there is a type to search feature in the application
     # Add a way to sort the transactions by date
     # Add a way to sort the transactions by amount
     # Add a way to sort the transactions by the type of transaction

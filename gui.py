@@ -61,7 +61,9 @@ def create_main_window(main_window, current_user_id):
         if validate.is_non_empty_string(desc) == False and validate.is_positive_number(amount) == False:
             messagebox.showerror('Error', 'Please enter a valid description and amount')
             return
-
+        if validate.in_future(date):
+            messagebox.showerror('Error', 'Date cannot be in the future')
+            return
         if current_user_id is None:
             messagebox.showerror('Error', 'You must be logged in to add a transaction')
             return
@@ -167,3 +169,8 @@ def create_main_window(main_window, current_user_id):
     display_transactions() # Shpws all existing transactions
 
     update_summary() # Update the summary initially
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    create_main_window(root, 1)
+    root.mainloop()
