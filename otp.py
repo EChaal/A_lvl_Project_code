@@ -30,6 +30,6 @@ def send_otp(to_email):
 
 
 
-recipient_email = "prestonwhiteman07@gmail.com"
+recipient_email = "elyaschaal974+1@gmail.com"
 
 send_otp(recipient_email)
