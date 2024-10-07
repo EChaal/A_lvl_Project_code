@@ -1,18 +1,20 @@
 import random
 import smtplib
 from email.message import EmailMessage
+import requests
 
 def generate_otp():
     # Generate a random 6 digit number
     return random.randint(100000, 999999)
 
-def send_otp(to_email):
+def email_otp(to_email):
     sender_email = "elyaschaal974@gmail.com"
     sender_password = 'dbqq vmfw tgxh wlon'
 
     # Set up the server
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
+    print('Server set up')
     # login to the server
     server.login(sender_email, sender_password)
     # Create the email message
@@ -30,6 +32,15 @@ def send_otp(to_email):
 
 
 
-recipient_email = "elyaschaal974+1@gmail.com"
 
-send_otp(recipient_email)
+
+if __name__ == "__main__":
+    recipient_email = "elyaschaal@gmail.com"
+    email_otp(recipient_email)
+
+    #resp = requests.post('https://textbelt.com/text', {
+    #    'phone': '5555555555',
+    #    'message': 'Hello world',
+    #    'key': 'textbelt',
+    #})
+    #print(resp.json())

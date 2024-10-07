@@ -56,6 +56,14 @@ def delete_transaction(transaction_id):
     conn.commit()
     conn.close()
 
+def transaction_query_description(user_id, search_text):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA foreign_keys = ON')
+    cursor.execute('SELECT * FROM transactions WHERE user_id = ? AND description LIKE ?', (user_id, f'%{search_text}%'))
+    transactions = cursor.fetchall()
+    conn.close()
+    return transactions
 
 def create_user_table():
     # Create a table for users if it doesn't exist

@@ -57,6 +57,6 @@ class DataValidator:
 
     def in_future(self, data):
         # data is given as a string in the format YYYY-MM-DD
-        year, month, day = map(int, data.split('-'))
+        month, day, year = map(int, data.split('-'))
         today = datetime.today()
         return datetime(year, month, day) > today

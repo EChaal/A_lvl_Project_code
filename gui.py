@@ -37,7 +37,7 @@ def create_main_window(main_window, current_user_id):
     income_radio.grid(row=2, column=2, padx=10, pady=5, sticky=tk.W)
     expense_radio.grid(row=2, column=3, padx=10, pady=5, sticky=tk.W)
 
-    date_label = tk.Label(main_window, text='Date (YYYY-MM-DD): ')
+    date_label = tk.Label(main_window, text='Date (MM-DD-YY): ')
     date_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
     date_entry = DateEntry(main_window, width=12, background='darkblue', foreground='white', borderwidth=2)
     date_entry.grid(row=3, column=1, padx=10, pady=5)
@@ -55,7 +55,7 @@ def create_main_window(main_window, current_user_id):
             messagebox.showerror('Error', 'Please enter a valid amount')
             return
         amount = float(amount)
-        date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
+        date = date_entry.get_date().strftime('%m-%d-%Y') # Get the date in the correct format
 
         # Validate the data
         if validate.is_non_empty_string(desc) == False and validate.is_positive_number(amount) == False:
@@ -81,6 +81,7 @@ def create_main_window(main_window, current_user_id):
 
     add_button = tk.Button(main_window, text='Add Transaction', command=add_transaction)
     add_button.grid(row=4, column=0, columnspan=4, padx=10, pady=5)
+
 
 
     ### Create a treeview widget to view transactions more clearly
@@ -115,9 +116,47 @@ def create_main_window(main_window, current_user_id):
             return
 
         # Insert existing transactions into treeview
-        transactions = db.get_transactions(globals.current_user_id)
-        for transaction in transactions:
-            transactions_tree.insert('', tk.END, values=transaction)
+        if search_entry.get() == search_placeholder:
+            transactions = db.get_transactions(globals.current_user_id)
+            for transaction in transactions:
+                transactions_tree.insert('', tk.END, values=transaction)
+        else:
+            filtered_transactions = db.transaction_query_description(globals.current_user_id, search_entry.get())
+            for transaction in filtered_transactions:
+                transactions_tree.insert('', tk.END, values=transaction)
+
+    # Adding the search entry here to make sure it is defined before calling display_transactions
+        ### Add a search entry to search for transactions
+
+    #Define placeholders
+    search_placeholder = 'Search by description'
+    placeholder_color = 'grey'
+    normal_color = 'black'
+
+    search_entry = tk.Entry(main_window)
+    search_entry.grid(row=4, column=2, columnspan=2, padx=10, pady=5)
+
+    # Bind the search entry to the key release event
+    #search_entry.bind('<KeyRelease>', display_transactions())
+
+    # Function to add the placeholder text
+    def add_placeholder(event=None):
+        if not search_entry.get():
+            search_entry.insert(0, search_placeholder)
+            search_entry.config(fg=placeholder_color)
+
+    # Function to remove the placeholder text
+    def remove_placeholder(event=None):
+        if search_entry.get() == search_placeholder:
+            search_entry.delete(0, tk.END)
+            search_entry.config(fg=normal_color)
+
+    # Bind events to the entry
+    search_entry.bind('<FocusIn>', remove_placeholder)
+    search_entry.bind('<FocusOut>', add_placeholder)
+    search_entry.bind('<KeyRelease>', lambda event: display_transactions())
+
+    add_placeholder() # Add the placeholder initially
 
     def delete_transaction():
         transaction_id = int(transaction_id_entry.get())
