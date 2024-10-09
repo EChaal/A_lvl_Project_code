@@ -1,7 +1,6 @@
 import random
 import smtplib
 from email.message import EmailMessage
-import requests
 
 def generate_otp():
     # Generate a random 6 digit number
@@ -35,7 +34,7 @@ def email_otp(to_email):
 
 
 if __name__ == "__main__":
-    recipient_email = "elyaschaal@gmail.com"
+    recipient_email = "kostispapd@gmail.com"
     email_otp(recipient_email)
 
     #resp = requests.post('https://textbelt.com/text', {

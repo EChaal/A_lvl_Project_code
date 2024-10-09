@@ -105,6 +105,10 @@ def create_main_window(main_window, current_user_id):
 
     transactions_tree.grid(row=5, column=0, columnspan=4, padx=10, pady=5)
 
+    # Add a vertical scrollbar
+    scrollbar = ttk.Scrollbar(main_window, orient='vertical', command=transactions_tree.yview)
+    scrollbar.grid(row=5, column=3, sticky='ns')
+
     def display_transactions():
         # Clear the treeview
         for row in transactions_tree.get_children():
