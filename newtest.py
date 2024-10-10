@@ -10,29 +10,7 @@ def create_main_window():
     conn = sqlite3.connect('finance_tracker.db')
     cur = conn.cursor()
 
-    # Create a frame for the filtering options
-    filter_frame = tk.Frame(root)
-    filter_frame.pack(pady=10)
-
-    # Sorting Checkbuttons (A-Z and Z-A)
-    az_checked = tk.IntVar(value=0)
-    za_checked = tk.IntVar(value=0)
-
-    def az_checked_handler():
-        if az_checked.get():
-            za_checked.set(0)  # Ensure Z-A is unchecked
-        filter_data()
-
-    def za_checked_handler():
-        if za_checked.get():
-            az_checked.set(0)  # Ensure A-Z is unchecked
-        filter_data()
-
-    tk.Label(filter_frame, text="Sort:").grid(row=2, column=0, pady=10)
-    tk.Checkbutton(filter_frame, text="A-Z", variable=az_checked, command=az_checked_handler).grid(row=2, column=1)
-    tk.Checkbutton(filter_frame, text="Z-A", variable=za_checked, command=za_checked_handler).grid(row=2, column=2)
-
-    # Frame for the Treeview and Scrollbar
+    # Create a frame for the Treeview and Scrollbar
     tree_frame = tk.Frame(root)
     tree_frame.pack(pady=10, fill=tk.BOTH, expand=True)
 
@@ -60,6 +38,23 @@ def create_main_window():
         for row in rows:
             tree.insert("", tk.END, values=row)
 
+    # Filtering variables
+    az_checked = tk.BooleanVar()
+    za_checked = tk.BooleanVar()
+    amount_checked = tk.BooleanVar()
+    date_checked = tk.BooleanVar()
+
+    # Exclusive check function to ensure A-Z and Z-A can't both be checked
+    def az_checked_handler():
+        if az_checked.get():
+            za_checked.set(0)  # Uncheck Z-A if A-Z is checked
+        filter_data()
+
+    def za_checked_handler():
+        if za_checked.get():
+            az_checked.set(0)  # Uncheck A-Z if Z-A is checked
+        filter_data()
+
     # Function to filter data based on the checkbuttons and sorting options
     def filter_data():
         tree.delete(*tree.get_children())  # Clear the Treeview
@@ -81,6 +76,26 @@ def create_main_window():
         # Insert the filtered rows back into the Treeview
         for row in filtered_rows:
             tree.insert("", tk.END, values=row)
+
+    # Function to show the filter menu next to the Treeview
+    def show_filter_menu(event):
+        filter_menu.post(event.x_root, event.y_root)
+
+    # Create a popup filter menu
+    filter_menu = tk.Menu(root, tearoff=0)
+
+    # Add Checkbutton menu items to the menu
+    filter_menu.add_checkbutton(label="Sort A-Z", onvalue=True, offvalue=False, variable=az_checked, command=az_checked_handler)
+    filter_menu.add_checkbutton(label="Sort Z-A", onvalue=True, offvalue=False, variable=za_checked, command=za_checked_handler)
+    filter_menu.add_checkbutton(label="Filter by Amount", onvalue=True, offvalue=False, variable=amount_checked, command=filter_data)
+    filter_menu.add_checkbutton(label="Filter by Date", onvalue=True, offvalue=False, variable=date_checked, command=filter_data)
+
+    # Button to show filter menu next to Treeview
+    filter_button = ttk.Button(root, text="Show Filters", command=lambda: show_filter_menu(tree))
+    filter_button.pack()
+
+    # Bind the button to show the menu at the correct position
+    filter_button.bind("<Button-1>", show_filter_menu)
 
     # Load the initial data
     load_data()

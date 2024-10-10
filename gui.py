@@ -130,15 +130,64 @@ def create_main_window(main_window, current_user_id):
                 transactions_tree.insert('', tk.END, values=transaction)
 
     # Adding the search entry here to make sure it is defined before calling display_transactions
-        ### Add a search entry to search for transactions
 
     #Define placeholders
     search_placeholder = 'Search by description'
     placeholder_color = 'grey'
     normal_color = 'black'
 
+    # Setting up search entry
     search_entry = tk.Entry(main_window)
     search_entry.grid(row=4, column=2, columnspan=2, padx=10, pady=5)
+
+    # Filtering variables
+    a_zchecked = tk.BooleanVar()
+    z_achecked = tk.BooleanVar()
+    latest_checked = tk.BooleanVar()
+    earliest_checked = tk.BooleanVar()
+    income_checked = tk.BooleanVar()
+    expense_checked = tk.BooleanVar()
+
+    # Handler functions for the checkbuttons
+
+    def a_zchecked_handler():
+        if a_zchecked.get():
+            z_achecked.set(0)
+
+    def z_achecked_handler():
+        if z_achecked.get():
+            a_zchecked.set(0)
+
+    def latest_checked_handler():
+        if latest_checked.get():
+            earliest_checked.set(0)
+
+    def earliest_checked_handler():
+        if earliest_checked.get():
+            latest_checked.set(0)
+
+    # Setting up a filter search menu button
+    sort_menu = tk.Menu(main_window, tearoff=0)
+
+    # to do with description
+    sort_menu.add_checkbutton(label='A-Z', onvalue=True, offvalue=False, variable=a_zchecked, command=a_zchecked_handler) # Later add a command to sort A-Z
+    sort_menu.add_checkbutton(label='Z-A', onvalue=True, offvalue=False, variable=z_achecked, command=z_achecked_handler) # Later add a command to sort Z-A
+    # Add separator
+    sort_menu.add_separator()
+    # To do with date
+    sort_menu.add_checkbutton(label='Latest', onvalue=True, offvalue=False, variable=latest_checked, command=latest_checked_handler) # Later add a command to filter by date
+    sort_menu.add_checkbutton(label='Earliest', onvalue=True, offvalue=False, variable=earliest_checked, command=earliest_checked_handler) # Later add a command to filter by date
+    # add separator
+    sort_menu.add_separator()
+    # to do with income and expense
+    sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False) # Later add a command to filter by income
+    sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False) # Later add a command to filter by expense
+
+    sort_button = tk.Button(main_window, text='Filter', command=lambda: sort_menu.post(sort_button.winfo_rootx(), sort_button.winfo_rooty() + sort_button.winfo_height()))
+    sort_button.grid(row=4, column=0, padx=10, pady=5)
+    sort_button.bind('<Button-1>', lambda event: sort_menu.post(event.x_root, event.y_root))
+
+
 
     # Bind the search entry to the key release event
     #search_entry.bind('<KeyRelease>', display_transactions())
