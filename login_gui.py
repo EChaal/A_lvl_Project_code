@@ -33,6 +33,7 @@ def create_login_window(root):
     # Create a separate window for login
     login_window = tk.Toplevel(root)
     login_window.title('Login')
+    login_window.resizable(False, False)
 
     username_label = tk.Label(login_window, text='Username: ')
     username_label.grid(row=0, column=0, padx=10, pady=5)
@@ -62,7 +63,7 @@ def create_login_window(root):
             globals.current_user_id = user_id  # Set the current_user_id
             login_window.destroy()  # Close login window
 
-            gui.create_main_window(tk.Toplevel(root), globals.current_user_id)  # Pass the root to create_main_window
+            gui.create_main_window(tk.Toplevel(root), globals.current_user_id, root)  # Pass the root to create_main_window
         else:
             messagebox.showerror('Error', 'Invalid username or password')
 
@@ -88,6 +89,7 @@ def create_forgot_password_window(root):
     validate = DataValidator()
     forgot_password_window = tk.Toplevel(root)
     forgot_password_window.title('Forgot Password')
+    forgot_password_window.resizable(False, False)
 
     email_label = tk.Label(forgot_password_window, text='Email: ')
     email_label.grid(row=0, column=0, padx=10, pady=5)
@@ -136,6 +138,7 @@ def create_registration_window(root):
     # Create a separate window for registration
     registration_window = tk.Toplevel(root)
     registration_window.title('Register')
+    registration_window.resizable(False, False)
 
     first_name_label = tk.Label(registration_window, text='First name: ')
     first_name_label.grid(row=0, column=0, padx=10, pady=5)

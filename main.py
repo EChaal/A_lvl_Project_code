@@ -19,7 +19,9 @@ def Main():
     create_welcome_window(root)
 
     # Start the Tkinter main loop
+    root.resizable(False, False)
     root.mainloop()
+
 
 
 if __name__ == "__main__":

@@ -7,11 +7,12 @@ import globals
 from validator import DataValidator
 
 
-def create_main_window(main_window, current_user_id):
+def create_main_window(main_window, current_user_id, root):
     # set up the validator
     validate = DataValidator()
     # Set up the main window
     main_window.title('Personal Finance Tracker - Main Window')
+    main_window.resizable(False, False)
 
     # Set up the main window layout
     label = tk.Label(main_window, text="Welcome to Personal Finance Tracker!")
@@ -50,6 +51,7 @@ def create_main_window(main_window, current_user_id):
 
     def add_transaction():
         desc = description_entry.get()
+        desc = desc[0].upper() + desc[1:].lower()
         amount = amount_entry.get()
         if validate.is_non_empty_string(amount) == False:
             messagebox.showerror('Error', 'Please enter a valid amount')
@@ -241,6 +243,10 @@ def create_main_window(main_window, current_user_id):
         if validate.is_positive_number(transaction_id) == False:
             messagebox.showerror('Error', 'Transaction ID isnt valid')
             return
+        # Check if transaction exists
+        if db.transaction_exists(transaction_id) == False:
+            messagebox.showerror('Error', 'Transaction does not exist')
+            return
         # Check if the transaction is the user's transaction
         if db.belongs_to_user(current_user_id, transaction_id) == False:
             messagebox.showerror('Error', 'Transaction does not belong to you')
@@ -289,6 +295,13 @@ def create_main_window(main_window, current_user_id):
     display_transactions() # Shpws all existing transactions
 
     update_summary() # Update the summary initially
+
+    # make root window show again when this window is closed
+    def on_closing(window):
+        window.withdraw()
+        root.deiconify()
+
+    main_window.protocol("WM_DELETE_WINDOW", lambda: on_closing(main_window))
 
 if __name__ == '__main__':
     root = tk.Tk()
