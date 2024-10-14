@@ -5,6 +5,9 @@ import gui
 import globals
 from validator import DataValidator
 from security import hash_password
+import otp
+import random
+import globals
 
 # Declare a global variable for the current user ID
 current_user_id = None
@@ -65,6 +68,66 @@ def create_login_window(root):
 
     login_button = tk.Button(login_window, text='Login', command=login)
     login_button.grid(row=2, column=0, columnspan=2, pady=10)
+
+    def back_to_welcome(login_window, root):
+        login_window.destroy()
+        root.deiconify()
+
+    back_button = tk.Button(login_window, text='Back', command=lambda:back_to_welcome(login_window, root))
+    back_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+    def forgot_password():
+        login_window.destroy()
+        create_forgot_password_window(root)
+
+    forgot_password_button = tk.Button(login_window, text='Forgot Password', command=forgot_password)
+    forgot_password_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+def create_forgot_password_window(root):
+    root.withdraw()
+    validate = DataValidator()
+    forgot_password_window = tk.Toplevel(root)
+    forgot_password_window.title('Forgot Password')
+
+    email_label = tk.Label(forgot_password_window, text='Email: ')
+    email_label.grid(row=0, column=0, padx=10, pady=5)
+
+    email_entry = tk.Entry(forgot_password_window)
+    email_entry.grid(row=0, column=1, padx=10, pady=5)
+
+    def send_otp():
+        email = email_entry.get()
+        if validate.is_valid_email(email) == False:
+            messagebox.showerror('Error', 'Please enter a valid email')
+            return
+        # Send the OTP
+        otp = random.randint(100000, 999999)
+        otp.send_otp(email, otp)
+        globals.otp = otp
+
+    send_otp_button = tk.Button(forgot_password_window, text='Send OTP', command=send_otp)
+    send_otp_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+    otp_label = tk.Label(forgot_password_window, text='Enter OTP: ')
+    otp_label.grid(row=2, column=0, padx=10, pady=5)
+
+    otp_entry = tk.Entry(forgot_password_window)
+    otp_entry.grid(row=2, column=1, padx=10, pady=5)
+
+    def check_otp():
+        otp = otp_entry.get()
+        if otp == globals.otp:
+            messagebox.showinfo('OTP Verified', 'OTP is correct')
+            forgot_password_window.destroy()
+            create_reset_password_window(root)
+        else:
+            messagebox.showerror('Error', 'Invalid OTP')
+
+    check_otp_button = tk.Button(forgot_password_window, text='Check OTP', command=check_otp)
+    check_otp_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+def create_reset_password_window(root):
+    pass # Work on this later
 
 def create_registration_window(root):
     # hide the root window
@@ -128,6 +191,11 @@ def create_registration_window(root):
         if validate.is_non_empty_string(password) == False or validate.length_check(password, 8, 'min') == False:
             messagebox.showerror('Error', 'Please enter a valid password (minimum 8 characters)')
             return
+
+        # Check if email is already in use
+        if db.email_exists(email):
+            messagebox.showerror('Error', 'Email already in use')
+            return
         # hashed password
         hashed_password = hash_password(password)
         # Add the user to the database
@@ -141,3 +209,10 @@ def create_registration_window(root):
 
     register_button = tk.Button(registration_window, text='Register', command=register)
     register_button.grid(row=6, column=0, columnspan=2, pady=10)
+
+    def back_to_welcome(registration_window, root):
+        registration_window.destroy()
+        root.deiconify()
+
+    back_button = tk.Button(registration_window, text='Back', command=lambda:back_to_welcome(registration_window, root))
+    back_button.grid(row=7, column=0, columnspan=2, pady=10)

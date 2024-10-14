@@ -149,3 +149,13 @@ def check_user(username, password):
         return user[0]
     else:
         return None
+
+def email_exists(email):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM users WHERE email = ?
+    ''', (email,))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None

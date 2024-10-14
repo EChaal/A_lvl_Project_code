@@ -2,11 +2,7 @@ import random
 import smtplib
 from email.message import EmailMessage
 
-def generate_otp():
-    # Generate a random 6 digit number
-    return random.randint(100000, 999999)
-
-def email_otp(to_email):
+def email_otp(to_email, otp):
     sender_email = "elyaschaal974@gmail.com"
     sender_password = 'dbqq vmfw tgxh wlon'
 
@@ -18,11 +14,10 @@ def email_otp(to_email):
     server.login(sender_email, sender_password)
     # Create the email message
     msg = EmailMessage()
-    msg['Subject'] = 'Random code for you my bro :)'
+    msg['Subject'] = 'Your OTP'
     msg['From'] = sender_email
     msg['To'] = to_email
     # create the OTP
-    otp = generate_otp()
     # write the OTP in the email message
     msg.set_content(f'Your OTP is {otp}')
     # Send the email
