@@ -59,8 +59,6 @@ def create_login_window(root):
             globals.current_user_id = user_id  # Set the current_user_id
             login_window.destroy()  # Close login window
 
-            # Show the main application window
-            root.deiconify()  # Show the root window
             gui.create_main_window(tk.Toplevel(root), globals.current_user_id)  # Pass the root to create_main_window
         else:
             messagebox.showerror('Error', 'Invalid username or password')

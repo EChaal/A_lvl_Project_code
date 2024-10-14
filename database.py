@@ -56,14 +56,32 @@ def delete_transaction(transaction_id):
     conn.commit()
     conn.close()
 
-def transaction_query_description(user_id, search_text):
+def transaction_search_description(search_text, transactions):
+    # Filter the transactions based on the description
+    filtered_transactions = []
+    for transaction in transactions:
+        if search_text.lower() in transaction[1].lower():
+            filtered_transactions.append(transaction)
+    return filtered_transactions
+
+def sort_data(user_id, query):
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
-    cursor.execute('SELECT * FROM transactions WHERE user_id = ? AND description LIKE ?', (user_id, f'%{search_text}%'))
+    og_query = 'SELECT * FROM transactions WHERE user_id = ? '
+    query = (og_query + query)
+    cursor.execute(query, (user_id,))
     transactions = cursor.fetchall()
     conn.close()
     return transactions
+
+def belongs_to_user(user_id, transaction_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM transactions WHERE id = ? AND user_id = ?', (transaction_id, user_id))
+    transaction = cursor.fetchone()
+    conn.close()
+    return transaction is not None
 
 def create_user_table():
     # Create a table for users if it doesn't exist

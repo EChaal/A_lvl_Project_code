@@ -109,6 +109,18 @@ def create_main_window(main_window, current_user_id):
     scrollbar = ttk.Scrollbar(main_window, orient='vertical', command=transactions_tree.yview)
     scrollbar.grid(row=5, column=3, sticky='ns')
 
+    def apply_sort():
+        query = ''
+        if a_zchecked.get():
+            query = 'ORDER BY description ASC'
+        elif z_achecked.get():
+            query = 'ORDER BY description DESC'
+        if latest_checked.get():
+            query = 'ORDER BY date DESC'
+        elif earliest_checked.get():
+            query = 'ORDER BY date ASC'
+        return db.sort_data(current_user_id, query)
+
     def display_transactions():
         # Clear the treeview
         for row in transactions_tree.get_children():
@@ -119,15 +131,17 @@ def create_main_window(main_window, current_user_id):
             messagebox.showerror('Error', 'You must be logged in to view transactions')
             return
 
+        sorted_transactions = apply_sort() # return transactions sorted by the query
+
         # Insert existing transactions into treeview
         if search_entry.get() == search_placeholder:
-            transactions = db.get_transactions(globals.current_user_id)
-            for transaction in transactions:
+            for transaction in sorted_transactions:
                 transactions_tree.insert('', tk.END, values=transaction)
         else:
-            filtered_transactions = db.transaction_query_description(globals.current_user_id, search_entry.get())
+            filtered_transactions = db.transaction_search_description(search_entry.get(), sorted_transactions)
             for transaction in filtered_transactions:
                 transactions_tree.insert('', tk.END, values=transaction)
+
 
     # Adding the search entry here to make sure it is defined before calling display_transactions
 
@@ -153,18 +167,30 @@ def create_main_window(main_window, current_user_id):
     def a_zchecked_handler():
         if a_zchecked.get():
             z_achecked.set(0)
+            latest_checked.set(0)
+            earliest_checked.set(0)
+        display_transactions()
 
     def z_achecked_handler():
         if z_achecked.get():
             a_zchecked.set(0)
+            latest_checked.set(0)
+            earliest_checked.set(0)
+        display_transactions()
 
     def latest_checked_handler():
         if latest_checked.get():
             earliest_checked.set(0)
+            a_zchecked.set(0)
+            z_achecked.set(0)
+        display_transactions()
 
     def earliest_checked_handler():
         if earliest_checked.get():
             latest_checked.set(0)
+            a_zchecked.set(0)
+            z_achecked.set(0)
+        display_transactions()
 
     # Setting up a filter search menu button
     sort_menu = tk.Menu(main_window, tearoff=0)
@@ -172,8 +198,6 @@ def create_main_window(main_window, current_user_id):
     # to do with description
     sort_menu.add_checkbutton(label='A-Z', onvalue=True, offvalue=False, variable=a_zchecked, command=a_zchecked_handler) # Later add a command to sort A-Z
     sort_menu.add_checkbutton(label='Z-A', onvalue=True, offvalue=False, variable=z_achecked, command=z_achecked_handler) # Later add a command to sort Z-A
-    # Add separator
-    sort_menu.add_separator()
     # To do with date
     sort_menu.add_checkbutton(label='Latest', onvalue=True, offvalue=False, variable=latest_checked, command=latest_checked_handler) # Later add a command to filter by date
     sort_menu.add_checkbutton(label='Earliest', onvalue=True, offvalue=False, variable=earliest_checked, command=earliest_checked_handler) # Later add a command to filter by date
@@ -216,6 +240,10 @@ def create_main_window(main_window, current_user_id):
         # validate the transaction id
         if validate.is_positive_number(transaction_id) == False:
             messagebox.showerror('Error', 'Transaction ID isnt valid')
+            return
+        # Check if the transaction is the user's transaction
+        if db.belongs_to_user(current_user_id, transaction_id) == False:
+            messagebox.showerror('Error', 'Transaction does not belong to you')
             return
         db.delete_transaction(transaction_id)
         display_transactions()
