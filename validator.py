@@ -52,7 +52,10 @@ class DataValidator:
         return False
 
     def is_valid_phone_number(self, data):
-        pattern = r'^(?:\+44|07)\d{9,10}$'
+        if data.startswith('+44'):
+            pattern = r'^\+44\d{11}$'
+        else:
+            pattern = r'^07\d{9,10}$'
         return bool(re.fullmatch(pattern, data))
 
     def in_future(self, data):

@@ -167,3 +167,13 @@ def email_exists(email):
     user = cursor.fetchone()
     conn.close()
     return user is not None
+
+def get_id_using_email(email):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM users WHERE email = ?
+    ''', (email,))
+    user = cursor.fetchone()
+    conn.close()
+    return user[0]

@@ -81,7 +81,7 @@ def create_login_window(root):
         login_window.destroy()
         create_forgot_password_window(root)
 
-    forgot_password_button = tk.Button(login_window, text='Forgot Password', command=forgot_password)
+    forgot_password_button = tk.Button(login_window, text='Forgot Password/Username', command=forgot_password)
     forgot_password_button.grid(row=4, column=0, columnspan=2, pady=10)
 
 def create_forgot_password_window(root):
