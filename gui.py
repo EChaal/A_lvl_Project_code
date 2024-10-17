@@ -51,6 +51,10 @@ def create_main_window(main_window, current_user_id, root):
 
     def add_transaction():
         desc = description_entry.get()
+        # validate the description before changing the case
+        if validate.is_non_empty_string(desc) == False:
+            messagebox.showerror('Error', 'Please enter a valid description')
+            return
         desc = desc[0].upper() + desc[1:].lower()
         amount = amount_entry.get()
         if validate.is_non_empty_string(amount) == False:
@@ -60,8 +64,8 @@ def create_main_window(main_window, current_user_id, root):
         date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
 
         # Validate the data
-        if validate.is_non_empty_string(desc) == False and validate.is_positive_number(amount) == False:
-            messagebox.showerror('Error', 'Please enter a valid description and amount')
+        if validate.is_positive_number(amount) == False:
+            messagebox.showerror('Error', 'Please enter a valid amount')
             return
         if validate.in_future(date):
             messagebox.showerror('Error', 'Date cannot be in the future')

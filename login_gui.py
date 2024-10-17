@@ -129,6 +129,18 @@ def create_forgot_password_window(root):
     check_otp_button.grid(row=3, column=0, columnspan=2, pady=10)
 
 def create_reset_password_window(root):
+    # root.withdraw()
+    # validate = DataValidator()
+    # reset_password_window = tk.Toplevel(root)
+    # reset_password_window.title('Reset Password')
+    # reset_password_window.resizable(False, False)
+    # # Email should be sent to the user with username
+    # username_label = tk.Label(reset_password_window, text='Username: ')
+    # username_label.grid(row=0, column=0, padx=10, pady=5)
+    # new_password_label = tk.Label(reset_password_window, text='New Password: ')
+    # new_password_label.grid(row=1, column=0, padx=10, pady=5)
+    # confirm_password_label = tk.Label(reset_password_window, text='Confirm Password: ')
+    # confirm_password_label.grid(row=2, column=0, padx=10, pady=5)
     pass # Work on this later
 
 def create_registration_window(root):
