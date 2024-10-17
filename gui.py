@@ -38,9 +38,9 @@ def create_main_window(main_window, current_user_id, root):
     income_radio.grid(row=2, column=2, padx=10, pady=5, sticky=tk.W)
     expense_radio.grid(row=2, column=3, padx=10, pady=5, sticky=tk.W)
 
-    date_label = tk.Label(main_window, text='Date (MM-DD-YY): ')
+    date_label = tk.Label(main_window, text='Date (YY-MM-DD): ')
     date_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
-    date_entry = DateEntry(main_window, width=12, background='darkblue', foreground='white', borderwidth=2)
+    date_entry = DateEntry(main_window, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='yy-mm-dd')
     date_entry.grid(row=3, column=1, padx=10, pady=5)
 
     def clear_entries():
@@ -57,7 +57,7 @@ def create_main_window(main_window, current_user_id, root):
             messagebox.showerror('Error', 'Please enter a valid amount')
             return
         amount = float(amount)
-        date = date_entry.get_date().strftime('%m-%d-%Y') # Get the date in the correct format
+        date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
 
         # Validate the data
         if validate.is_non_empty_string(desc) == False and validate.is_positive_number(amount) == False:
