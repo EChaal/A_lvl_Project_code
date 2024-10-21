@@ -27,7 +27,6 @@ def Main():
 if __name__ == "__main__":
     Main()
 
-    # Add forgot password feature
     # Add a toolbar on main window with buttons for settings, logout, and help
     # Add 2FA to the application
     # Add a way to sort the transactions by the type of transaction
