@@ -29,11 +29,11 @@ def export_transactions_to_csv():
         with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
             # Write headers (adjust the headers based on your transactions' structure)
-            writer.writerow(['Date', 'Description', 'Amount', 'Category', 'Type'])
+            writer.writerow(['ID', 'Description', 'Amount', 'Date'])
 
             # Write the transaction data
             for transaction in transactions:
-                writer.writerow(transaction)
+                writer.writerow(transaction[:-1])
 
         messagebox.showinfo('Success', f'Transactions exported successfully to {os.path.basename(file_path)}')
 
