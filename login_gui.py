@@ -84,6 +84,9 @@ def create_login_window(root):
     forgot_password_button = tk.Button(login_window, text='Forgot Password/Username', command=forgot_password)
     forgot_password_button.grid(row=4, column=0, columnspan=2, pady=10)
 
+    # handle the close event
+    login_window.protocol('WM_DELETE_WINDOW', lambda:back_to_welcome(login_window, root))
+
 def create_forgot_password_window(root):
     root.withdraw()
     validate = DataValidator()
@@ -133,6 +136,12 @@ def create_forgot_password_window(root):
     def back_to_login(forgot_password_window, root):
         forgot_password_window.destroy()
         create_login_window(root)
+
+    back_button = tk.Button(forgot_password_window, text='Back to login', command=lambda:back_to_login(forgot_password_window, root))
+    back_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+    # handle the close event
+    forgot_password_window.protocol('WM_DELETE_WINDOW', lambda:back_to_login(forgot_password_window, root))
 
 def create_reset_password_window(root):
     root.withdraw()
@@ -186,6 +195,9 @@ def create_reset_password_window(root):
     # Back button to go back to the welcome window
     back_button = tk.Button(reset_password_window, text='Back to login', command=lambda:back_to_login(reset_password_window, root))
     back_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+    # handle the close event
+    reset_password_window.protocol('WM_DELETE_WINDOW', lambda:back_to_login(reset_password_window, root))
 
 
 def create_registration_window(root):
@@ -276,3 +288,6 @@ def create_registration_window(root):
 
     back_button = tk.Button(registration_window, text='Back', command=lambda:back_to_welcome(registration_window, root))
     back_button.grid(row=7, column=0, columnspan=2, pady=10)
+
+    # handle the close event
+    registration_window.protocol('WM_DELETE_WINDOW', lambda:back_to_welcome(registration_window, root))
