@@ -5,6 +5,7 @@ from tkcalendar import DateEntry
 import database as db
 import globals
 from validator import DataValidator
+import export
 
 
 def create_main_window(main_window, current_user_id, root):
@@ -269,13 +270,16 @@ def create_main_window(main_window, current_user_id, root):
     delete_button = tk.Button(main_window, text='Delete Transaction', command=delete_transaction)
     delete_button.grid(row=6, column=2, columnspan=2, pady=10)
 
+    # Adding export button under the delete button
+    export_button = tk.Button(main_window, text='Export All Transactions', command=export.export_transactions_to_csv)
+    export_button.grid(row=7, column=0, columnspan=4, pady=10)
 
     ### Summary section ###
     summary_label = tk.Label(main_window, text='Transaction summary', font=('Helvetica', 14))
-    summary_label.grid(row=7, column=0, columnspan=4, pady=10)
+    summary_label.grid(row=8, column=0, columnspan=4, pady=10)
 
     summary_txt = tk.Text(main_window, width=40, height=5)
-    summary_txt.grid(row=8, column=0, columnspan=4, pady=20)
+    summary_txt.grid(row=9, column=0, columnspan=4, pady=20)
 
     def update_summary():
         transactions = db.get_transactions(current_user_id)
