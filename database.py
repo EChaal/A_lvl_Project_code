@@ -177,3 +177,26 @@ def get_id_using_email(email):
     user = cursor.fetchone()
     conn.close()
     return user[0]
+
+def get_username(email):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT username FROM users WHERE email = ?
+    ''', (email,))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        print(user[0])
+        return user[0]
+    else:
+        return None
+
+def update_password(username, password):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE users SET password = ? WHERE username = ?
+    ''', (password, username))
+    conn.commit()
+    conn.close()

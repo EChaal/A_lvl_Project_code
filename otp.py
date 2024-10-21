@@ -2,7 +2,7 @@ import random
 import smtplib
 from email.message import EmailMessage
 
-def email_otp(to_email, otp):
+def send_otp(to_email, otp):
     sender_email = "elyaschaal974@gmail.com"
     sender_password = 'dbqq vmfw tgxh wlon'
 
@@ -17,7 +17,6 @@ def email_otp(to_email, otp):
     msg['Subject'] = 'Your OTP'
     msg['From'] = sender_email
     msg['To'] = to_email
-    # create the OTP
     # write the OTP in the email message
     msg.set_content(f'Your OTP is {otp}')
     # Send the email
@@ -30,7 +29,7 @@ def email_otp(to_email, otp):
 
 if __name__ == "__main__":
     recipient_email = "kostispapd@gmail.com"
-    email_otp(recipient_email)
+    send_otp(recipient_email)
 
     #resp = requests.post('https://textbelt.com/text', {
     #    'phone': '5555555555',

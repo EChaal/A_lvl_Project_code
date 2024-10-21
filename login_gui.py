@@ -99,13 +99,14 @@ def create_forgot_password_window(root):
 
     def send_otp():
         email = email_entry.get()
+        globals.current_user = db.get_username(email)
         if validate.is_valid_email(email) == False:
             messagebox.showerror('Error', 'Please enter a valid email')
             return
         # Send the OTP
-        otp = random.randint(100000, 999999)
-        otp.send_otp(email, otp)
-        globals.otp = otp
+        one_time_password = random.randint(100000, 999999)
+        globals.otp = one_time_password
+        otp.send_otp(email, one_time_password)
 
     send_otp_button = tk.Button(forgot_password_window, text='Send OTP', command=send_otp)
     send_otp_button.grid(row=1, column=0, columnspan=2, pady=10)
@@ -117,8 +118,9 @@ def create_forgot_password_window(root):
     otp_entry.grid(row=2, column=1, padx=10, pady=5)
 
     def check_otp():
-        otp = otp_entry.get()
-        if otp == globals.otp:
+        entered_otp = int(otp_entry.get()) # integer to check against the OTP
+        print(globals.otp)
+        if entered_otp == globals.otp:
             messagebox.showinfo('OTP Verified', 'OTP is correct')
             forgot_password_window.destroy()
             create_reset_password_window(root)
@@ -128,20 +130,63 @@ def create_forgot_password_window(root):
     check_otp_button = tk.Button(forgot_password_window, text='Check OTP', command=check_otp)
     check_otp_button.grid(row=3, column=0, columnspan=2, pady=10)
 
+    def back_to_login(forgot_password_window, root):
+        forgot_password_window.destroy()
+        create_login_window(root)
+
 def create_reset_password_window(root):
-    # root.withdraw()
-    # validate = DataValidator()
-    # reset_password_window = tk.Toplevel(root)
-    # reset_password_window.title('Reset Password')
-    # reset_password_window.resizable(False, False)
-    # # Email should be sent to the user with username
-    # username_label = tk.Label(reset_password_window, text='Username: ')
-    # username_label.grid(row=0, column=0, padx=10, pady=5)
-    # new_password_label = tk.Label(reset_password_window, text='New Password: ')
-    # new_password_label.grid(row=1, column=0, padx=10, pady=5)
-    # confirm_password_label = tk.Label(reset_password_window, text='Confirm Password: ')
-    # confirm_password_label.grid(row=2, column=0, padx=10, pady=5)
-    pass # Work on this later
+    root.withdraw()
+    validate = DataValidator()
+    reset_password_window = tk.Toplevel(root)
+    reset_password_window.title('Reset Password')
+    reset_password_window.resizable(False, False)
+    # Email should be sent to the user with username
+    username_label = tk.Label(reset_password_window, text='Username: ' + globals.current_user)
+    username_label.grid(row=0, column=0, padx=10, pady=5)
+
+    new_password_label = tk.Label(reset_password_window, text='New Password: ')
+    new_password_label.grid(row=1, column=0, padx=10, pady=5)
+    new_password_entry = tk.Entry(reset_password_window, show='*')
+    new_password_entry.grid(row=1, column=1, padx=10, pady=5)
+
+    confirm_password_label = tk.Label(reset_password_window, text='Confirm Password: ')
+    confirm_password_label.grid(row=2, column=0, padx=10, pady=5)
+    confirm_password_entry = tk.Entry(reset_password_window, show='*')
+    confirm_password_entry.grid(row=2, column=1, padx=10, pady=5)
+
+    # function to reset the password
+    def reset_password():
+        new_password = new_password_entry.get()
+        confirm_password = confirm_password_entry.get()
+
+        # Check the password
+        if new_password != confirm_password:
+            messagebox.showerror('Error', 'Passwords do not match')
+            return
+
+        # Validate the password
+        if validate.is_non_empty_string(new_password) == False or validate.length_check(new_password, 8, 'min') == False:
+            messagebox.showerror('Error', 'Please enter a valid password (minimum 8 characters)')
+            return
+
+        # hash the password and update it in the database
+        hashed_password = hash_password(new_password)
+        db.update_password(globals.current_user, hashed_password)
+        messagebox.showinfo('Password Reset', 'Password has been reset successfully')
+        reset_password_window.destroy()
+        root.deiconify()
+
+    reset_password_button = tk.Button(reset_password_window, text='Reset Password', command=reset_password)
+    reset_password_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+    def back_to_login(reset_password_window, root):
+        reset_password_window.destroy()
+        create_login_window(root)
+
+    # Back button to go back to the welcome window
+    back_button = tk.Button(reset_password_window, text='Back to login', command=lambda:back_to_login(reset_password_window, root))
+    back_button.grid(row=4, column=0, columnspan=2, pady=10)
+
 
 def create_registration_window(root):
     # hide the root window

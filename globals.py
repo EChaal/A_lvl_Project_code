@@ -2,3 +2,4 @@
 
 current_user_id = None
 otp = None
+current_user = None
