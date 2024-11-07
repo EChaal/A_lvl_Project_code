@@ -29,5 +29,4 @@ if __name__ == "__main__":
 
     # Add a toolbar on main window with buttons for settings, logout, and help
     # Add 2FA to the application
-    # Add a way to sort the transactions by the type of transaction
-    # Add a way to export the transactions to a CSV file
+    # Add a way to view a summary of transactions
