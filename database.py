@@ -75,6 +75,22 @@ def sort_data(user_id, query):
     conn.close()
     return transactions
 
+def income_only(transactions):
+    # Filter the transactions based on if it is income
+    filtered_transactions = []
+    for transaction in transactions:
+        if transaction[2] > 0:
+            filtered_transactions.append(transaction)
+    return filtered_transactions
+
+def expense_only(transactions):
+    # Filter the transactions based on if it is an expense
+    filtered_transactions = []
+    for transaction in transactions:
+        if transaction[2] < 0:
+            filtered_transactions.append(transaction)
+    return filtered_transactions
+
 def belongs_to_user(user_id, transaction_id):
     conn = connect_db()
     cursor = conn.cursor()

@@ -63,3 +63,26 @@ class DataValidator:
         year, month, day = map(int, data.split('-'))
         today = datetime.today()
         return datetime(year, month, day) > today
+
+    def has_two_decimal_places(self, data):
+        # Split the string at the dot
+        parts = data.split('.')
+        # Check if there is no decimal part
+        if len(parts) == 1:
+            return True
+        # Chack that they didnt just put a dot
+        if len(parts[1]) == 0:
+            return False
+        # Check if the decimal part has exactly two digits
+        if len(parts[1]) <= 2:
+            return True
+        else:
+            return False
+
+if __name__ == '__main__':
+    dv = DataValidator()
+    print(dv.has_two_decimal_places('123.45'))  # True
+    print(dv.has_two_decimal_places('123.456'))  # False
+    print(dv.has_two_decimal_places('123'))  # True
+    print(dv.has_two_decimal_places('123.'))  # False
+    print(dv.has_two_decimal_places('123.4'))  # True

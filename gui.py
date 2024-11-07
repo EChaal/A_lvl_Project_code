@@ -56,24 +56,25 @@ def create_main_window(main_window, current_user_id, root):
         if validate.is_non_empty_string(desc) == False:
             messagebox.showerror('Error', 'Please enter a valid description')
             return
-        desc = desc[0].upper() + desc[1:].lower()
+        desc = desc.capitalize()
         amount = amount_entry.get()
-        if validate.is_non_empty_string(amount) == False:
+        # validate the amount before changing to float
+        if validate.is_non_empty_string(amount) == False and validate.is_positive_number(amount) == False and validate.has_two_decimal_places(amount) == False:
             messagebox.showerror('Error', 'Please enter a valid amount')
             return
         amount = float(amount)
         date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
 
-        # Validate the data
-        if validate.is_positive_number(amount) == False:
-            messagebox.showerror('Error', 'Please enter a valid amount')
-            return
+        # Validate the date
         if validate.in_future(date):
             messagebox.showerror('Error', 'Date cannot be in the future')
             return
+
+        # Check if user is logged in
         if current_user_id is None:
             messagebox.showerror('Error', 'You must be logged in to add a transaction')
             return
+
         #Check if income or expense
         if transaction_type.get() == 'expense':
             amount = -amount # Make expenses negative
@@ -87,7 +88,7 @@ def create_main_window(main_window, current_user_id, root):
         clear_entries()
 
     add_button = tk.Button(main_window, text='Add Transaction', command=add_transaction)
-    add_button.grid(row=4, column=0, columnspan=4, padx=10, pady=5)
+    add_button.grid(row=3, column=2, columnspan=2, padx=10, pady=5)
 
 
 
@@ -138,13 +139,19 @@ def create_main_window(main_window, current_user_id, root):
             messagebox.showerror('Error', 'You must be logged in to view transactions')
             return
 
+        # Apply sorting
         sorted_transactions = apply_sort() # return transactions sorted by the query
+        if income_checked.get():
+            sorted_transactions = db.income_only(sorted_transactions) # Show only income transactions
+        elif expense_checked.get():
+            sorted_transactions = db.expense_only(sorted_transactions) # show only expense transactions
 
         # Insert existing transactions into treeview
         if search_entry.get() == search_placeholder:
             for transaction in sorted_transactions:
                 transactions_tree.insert('', tk.END, values=transaction)
         else:
+            # Apply filter by description
             filtered_transactions = db.transaction_search_description(search_entry.get(), sorted_transactions)
             for transaction in filtered_transactions:
                 transactions_tree.insert('', tk.END, values=transaction)
@@ -199,6 +206,29 @@ def create_main_window(main_window, current_user_id, root):
             z_achecked.set(0)
         display_transactions()
 
+    def income_checked_handler():
+        if income_checked.get():
+            expense_checked.set(0)
+        display_transactions()
+
+    def expense_checked_handler():
+        if expense_checked.get():
+            income_checked.set(0)
+        display_transactions()
+
+    # Set up a filter reset function
+    def reset_filter():
+        a_zchecked.set(0)
+        z_achecked.set(0)
+        latest_checked.set(0)
+        earliest_checked.set(0)
+        income_checked.set(0)
+        expense_checked.set(0)
+        display_transactions()
+
+    # Setting up a reset filter button
+    reset_button = tk.Button(main_window, text='Reset Filter', command=reset_filter)
+    reset_button.grid(row=4, column=1, padx=10, pady=5)
     # Setting up a filter search menu button
     sort_menu = tk.Menu(main_window, tearoff=0)
 
@@ -211,8 +241,8 @@ def create_main_window(main_window, current_user_id, root):
     # add separator
     sort_menu.add_separator()
     # to do with income and expense
-    sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False) # Later add a command to filter by income
-    sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False) # Later add a command to filter by expense
+    sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False, variable=income_checked, command=income_checked_handler)
+    sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False, variable=expense_checked, command=expense_checked_handler)
 
     sort_button = tk.Button(main_window, text='Filter', command=lambda: sort_menu.post(sort_button.winfo_rootx(), sort_button.winfo_rooty() + sort_button.winfo_height()))
     sort_button.grid(row=4, column=0, padx=10, pady=5)
