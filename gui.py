@@ -1,347 +1,333 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from tkinter import *
 from tkcalendar import DateEntry
 import database as db
 import globals
 from validator import DataValidator
 import export
 
+class MainWindow:
+    def __init__(self, main_window, current_user_id, root):
+        self.main_window = main_window
+        self.current_user_id = current_user_id
+        self.root = root
+        self.validate = DataValidator()
 
-def create_main_window(main_window, current_user_id, root):
-    # set up the validator
-    validate = DataValidator()
-    # Set up the main window
-    main_window.title('Personal Finance Tracker - Main Window')
-    main_window.resizable(False, False)
+        # Set up main window properties
+        self.main_window.title('Personal Finance Tracker - Main Window')
+        self.main_window.resizable(False, False)
 
-    # Set up the main window layout
-    label = tk.Label(main_window, text="Welcome to Personal Finance Tracker!")
-    label.grid(row=0, column=0, columnspan=4, pady=20)
+        self.a_zchecked = tk.BooleanVar()
+        self.z_achecked = tk.BooleanVar()
+        self.latestchecked = tk.BooleanVar()
+        self.oldestchecked = tk.BooleanVar()
+        self.incomechecked = tk.BooleanVar()
+        self.expensechecked = tk.BooleanVar()
 
-    # Set up the entry fields for transaction
-    description_label = tk.Label(main_window, text='Description: ')
-    description_label.grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
-    description_entry = tk.Entry(main_window)
-    description_entry.grid(row=1, column=1, padx=10, pady=5)
+        # Call setup functions for the layout and functionality
+        self.setup_layout()
+        self.setup_transactions_tree()
+        self.display_transactions()
+        self.update_summary()
+        self.add_placeholder()
 
-    amount_label = tk.Label(main_window, text='Amount: ')
-    amount_label.grid(row=2, column=0, sticky=tk.W, padx=10, pady=5)
-    amount_entry = tk.Entry(main_window)
-    amount_entry.grid(row=2, column=1, padx=10, pady=5)
 
-    # Add radio button for selecting income or expense
+        # Make root window show again when this window is closed
+        self.main_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-    transaction_type = tk.StringVar(value='expense')
-    income_radio = tk.Radiobutton(main_window, text='Income', variable=transaction_type, value='income')
-    expense_radio = tk.Radiobutton(main_window, text='Expense', variable=transaction_type, value='expense')
+    def setup_layout(self):
+        tk.Label(self.main_window, text="Welcome to Personal Finance Tracker!").grid(row=0, column=0, columnspan=4, pady=20)
 
-    income_radio.grid(row=2, column=2, padx=10, pady=5, sticky=tk.W)
-    expense_radio.grid(row=2, column=3, padx=10, pady=5, sticky=tk.W)
+        # Description and Amount fields
+        tk.Label(self.main_window, text='Description: ').grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
+        self.description_entry = tk.Entry(self.main_window)
+        self.description_entry.grid(row=1, column=1, padx=10, pady=5)
 
-    date_label = tk.Label(main_window, text='Date (YY-MM-DD): ')
-    date_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
-    date_entry = DateEntry(main_window, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='yy-mm-dd')
-    date_entry.grid(row=3, column=1, padx=10, pady=5)
+        tk.Label(self.main_window, text='Amount: ').grid(row=2, column=0, sticky=tk.W, padx=10, pady=5)
+        self.amount_entry = tk.Entry(self.main_window)
+        self.amount_entry.grid(row=2, column=1, padx=10, pady=5)
 
-    def clear_entries():
-        amount_entry.delete(0, END)
-        description_entry.delete(0, END)
-        transaction_id_entry.delete(0, END)
-        date_entry.set_date(date_entry._date.today()) # Reset date to today
+        # Radio buttons for transaction type
+        self.transaction_type = tk.StringVar(value='expense')
+        tk.Radiobutton(self.main_window, text='Income', variable=self.transaction_type, value='income').grid(row=2, column=2, padx=10, pady=5, sticky=tk.W)
+        tk.Radiobutton(self.main_window, text='Expense', variable=self.transaction_type, value='expense').grid(row=2, column=3, padx=10, pady=5, sticky=tk.W)
 
-    def add_transaction():
-        desc = description_entry.get()
-        # validate the description before changing the case
-        if validate.is_non_empty_string(desc) == False:
+        # Date entry
+        tk.Label(self.main_window, text='Date (YY-MM-DD): ').grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
+        self.date_entry = DateEntry(self.main_window, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='yy-mm-dd')
+        self.date_entry.grid(row=3, column=1, padx=10, pady=5)
+
+        # Buttons
+        self.add_transaction_buitton = tk.Button(self.main_window, text='Add Transaction', command=self.add_transaction).grid(row=3, column=2, columnspan=2, padx=10, pady=5)
+        self.reset_filter_button = tk.Button(self.main_window, text='Reset Filter', command=self.reset_filter).grid(row=4, column=1, padx=10, pady=5)
+        self.delete_transaction_button = tk.Button(self.main_window, text='Delete Transaction', command=self.delete_transaction).grid(row=6, column=2, columnspan=2, pady=10)
+        self.export_transactions_button = tk.Button(self.main_window, text='Export All Transactions', command=export.export_transactions_to_csv).grid(row=7, column=0, columnspan=4, pady=10)
+
+        # Summary label
+        self.summary_label = tk.Label(self.main_window, text='Transaction summary', font=('Helvetica', 14)).grid(row=8, column=0, columnspan=4, pady=10)
+        self.summary_txt = tk.Text(self.main_window, width=40, height=5)
+        self.summary_txt.grid(row=9, column=0, columnspan=4, pady=20)
+
+        # Transaction ID field for deletion
+        self.transaction_delete_label = tk.Label(self.main_window, text='Transaction ID to delete: ').grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
+        self.transaction_id_entry = tk.Entry(self.main_window)
+        self.transaction_id_entry.grid(row=6, column=1, padx=10, pady=5)
+
+        # Define placeholders and colors for search entry
+        self.search_placeholder = 'Search by description'
+        self.placeholder_color = 'grey'
+        self.normal_color = 'black'
+
+        # Search entry
+        self.search_entry = tk.Entry(self.main_window)
+        self.search_entry.grid(row=4, column=2, columnspan=2, padx=10, pady=5)
+
+        # bind search entry to placeholder functions
+        # Bind events to the entry
+        self.search_entry.bind('<FocusIn>', self.remove_placeholder)
+        self.search_entry.bind('<FocusOut>', self.add_placeholder)
+        self.search_entry.bind('<KeyRelease>', lambda event: self.display_transactions())
+
+        # Set up sort menu
+        self.sort_menu = tk.Menu(self.main_window)
+
+        self.sort_menu.add_checkbutton(label='A-Z', onvalue=True, offvalue=False, variable=self.a_zchecked, command=self.a_zchecked_handler) # Later add a command to sort A-Z
+        self.sort_menu.add_checkbutton(label='Z-A', onvalue=True, offvalue=False, variable=self.z_achecked, command=self.z_achecked_handler) # Later add a command to sort Z-A
+
+        self.sort_menu.add_checkbutton(label='Latest', onvalue=True, offvalue=False, variable=self.latestchecked, command=self.latest_checked_handler) # Later add a command to filter by date
+        self.sort_menu.add_checkbutton(label='Oldest', onvalue=True, offvalue=False, variable=self.oldestchecked, command=self.oldest_checked_handler) # Later add a command to filter by date
+
+        self.sort_menu.add_separator()
+
+        self.sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False, variable=self.incomechecked, command=self.income_checked_handler)
+        self.sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False, variable=self.expensechecked, command=self.expense_checked_handler)
+
+        # Filter button that will have the sort menu as a dropdown
+        self.filter_button = tk.Button(self.main_window, text='Filter', command=lambda: self.sort_menu.post(self.filter_button.winfo_rootx(), self.filter_button.winfo_rooty() + self.filter_button.winfo_height()))
+        self.filter_button.grid(row=4, column=0, padx=10, pady=5)
+        self.filter_button.bind('<Button-1>', lambda event: self.sort_menu.post(event.x_root, event.y_root))
+
+    def setup_transactions_tree(self):
+        columns = ('ID', 'Description', 'Amount', 'Date')
+        self.transactions_tree = ttk.Treeview(self.main_window, columns=columns, show='headings')
+
+        # Define headings and column widths
+        self.transactions_tree.heading('ID', text='ID')
+        self.transactions_tree.heading('Description', text='Description')
+        self.transactions_tree.heading('Amount', text='Amount')
+        self.transactions_tree.heading('Date', text='Date')
+        self.transactions_tree.column('ID', width=50)
+        self.transactions_tree.column('Description', width=150)
+        self.transactions_tree.column('Amount', width=100)
+        self.transactions_tree.column('Date', width=100)
+
+        # Add Treeview and scrollbar to layout
+        self.transactions_tree.grid(row=5, column=0, columnspan=4, padx=10, pady=5)
+        scrollbar = ttk.Scrollbar(self.main_window, orient='vertical', command=self.transactions_tree.yview)
+        scrollbar.grid(row=5, column=3, sticky='ns')
+
+    def clear_entries(self):
+        self.amount_entry.delete(0, tk.END)
+        self.description_entry.delete(0, tk.END)
+        self.transaction_id_entry.delete(0, tk.END)
+        self.date_entry.set_date(self.date_entry._date.today())
+
+    def validate_transaction(self):
+        # Check if user is logged in
+        if self.current_user_id is None:
+            messagebox.showerror('Error', 'Please log in to add a transaction')
+            return
+
+        # Validate transaction data
+        desc = self.description_entry.get()
+        amount = self.amount_entry.get()
+        date = self.date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
+
+        # Validate description
+        if self.validate.is_non_empty_string(desc) == False:
             messagebox.showerror('Error', 'Please enter a valid description')
             return
-        desc = desc.capitalize()
-        amount = amount_entry.get()
-        # validate the amount before changing to float
-        if validate.is_non_empty_string(amount) == False and validate.is_positive_number(amount) == False and validate.has_two_decimal_places(amount) == False:
+
+        # Validate amount
+        if self.validate.is_non_empty_string(amount) == False and self.validate.is_positive_number(amount) == False and self.validate.has_two_decimal_places(amount) == False:
             messagebox.showerror('Error', 'Please enter a valid amount')
             return
+
+        # Validate date
+        if self.validate.in_future(date) == False:
+            messagebox.showerror('Error', 'Cannot enter date in the future')
+            return
+
+        # Return validated data in neccesary format
+        desc = desc.capitalize()
         amount = float(amount)
-        date = date_entry.get_date().strftime('%Y-%m-%d') # Get the date in the correct format
+        date = date # Already in correct format
 
-        # Validate the date
-        if validate.in_future(date):
-            messagebox.showerror('Error', 'Date cannot be in the future')
+        return desc, amount, date
+
+
+    def add_transaction(self):
+        # Transaction logic here, including validation
+        validated_desc, validated_amount, validated_date = self.validate_transaction() # splits the validated data into separate variables
+        user_id = self.current_user_id
+        db.add_transaction(validated_desc, validated_amount, validated_date, user_id) # Add transaction to database
+        self.display_transactions() # Displays transactions in tree view
+        self.update_summary()
+        self.clear_entries()
+
+    def display_transactions(self):
+        # Make sure a user is logged in
+        if self.current_user_id is None:
+            messagebox.showerror('Error', 'Please log in to view transactions')
             return
 
-        # Check if user is logged in
-        if current_user_id is None:
-            messagebox.showerror('Error', 'You must be logged in to add a transaction')
-            return
+        # Delete all transactions from the tree view
+        for row in self.transactions_tree.get_children():
+            self.transactions_tree.delete(row)
 
-        #Check if income or expense
-        if transaction_type.get() == 'expense':
-            amount = -amount # Make expenses negative
+        # Display transactions in tree view
 
-        print(f'Description: {desc}, Amount: {amount}, Date: {date}, User ID: {current_user_id}')
-        # Add this to the finance table
-        user_id = current_user_id
-        db.add_transaction(desc, amount, date, user_id)
-        display_transactions()
-        update_summary()
-        clear_entries()
+        def apply_sort():
+            query = ''
+            if self.a_zchecked.get():
+                query += ' ORDER BY description ASC'
+            elif self.z_achecked.get():
+                query += ' ORDER BY description DESC'
+            elif self.latestchecked.get():
+                query += ' ORDER BY date DESC'
+            elif self.oldestchecked.get():
+                query += ' ORDER BY date ASC'
+            return db.sort_data(self.current_user_id, query)
 
-    add_button = tk.Button(main_window, text='Add Transaction', command=add_transaction)
-    add_button.grid(row=3, column=2, columnspan=2, padx=10, pady=5)
+        transactions = apply_sort() # Sorted transactions (if there was any sorting)
+        if self.incomechecked.get():
+            transactions = db.income_only(transactions) # shows only income transactions
+        elif self.expensechecked.get():
+            transactions = db.expense_only(transactions) # shows only expense transactions
 
-
-
-    ### Create a treeview widget to view transactions more clearly
-
-    columns = ('ID', 'Description', 'Amount', 'Date')
-    transactions_tree = ttk.Treeview(main_window, columns=columns, show='headings')
-
-    # Define headings
-
-    transactions_tree.heading('ID', text='ID')
-    transactions_tree.heading('Description', text='Description')
-    transactions_tree.heading('Amount', text='Amount')
-    transactions_tree.heading('Date', text='Date')
-
-    # Define column widths
-
-    transactions_tree.column('ID', width=50)
-    transactions_tree.column('Description', width=150)
-    transactions_tree.column('Amount', width=100)
-    transactions_tree.column('Date', width=100)
-
-    transactions_tree.grid(row=5, column=0, columnspan=4, padx=10, pady=5)
-
-    # Add a vertical scrollbar
-    scrollbar = ttk.Scrollbar(main_window, orient='vertical', command=transactions_tree.yview)
-    scrollbar.grid(row=5, column=3, sticky='ns')
-
-    def apply_sort():
-        query = ''
-        if a_zchecked.get():
-            query = 'ORDER BY description ASC'
-        elif z_achecked.get():
-            query = 'ORDER BY description DESC'
-        if latest_checked.get():
-            query = 'ORDER BY date DESC'
-        elif earliest_checked.get():
-            query = 'ORDER BY date ASC'
-        return db.sort_data(current_user_id, query)
-
-    def display_transactions():
-        # Clear the treeview
-        for row in transactions_tree.get_children():
-            transactions_tree.delete(row)
-
-        # Make sure we have a user logged in
-        if globals.current_user_id is None:
-            messagebox.showerror('Error', 'You must be logged in to view transactions')
-            return
-
-        # Apply sorting
-        sorted_transactions = apply_sort() # return transactions sorted by the query
-        if income_checked.get():
-            sorted_transactions = db.income_only(sorted_transactions) # Show only income transactions
-        elif expense_checked.get():
-            sorted_transactions = db.expense_only(sorted_transactions) # show only expense transactions
-
-        # Insert existing transactions into treeview
-        if search_entry.get() == search_placeholder:
-            for transaction in sorted_transactions:
-                transactions_tree.insert('', tk.END, values=transaction)
+        # Insert transactions into the tree view
+        # If nothing in placeholder
+        if self.search_entry.get() == self.search_placeholder:
+            for transaction in transactions:
+                self.transactions_tree.insert('', tk.END, values=transaction)
         else:
-            # Apply filter by description
-            filtered_transactions = db.transaction_search_description(search_entry.get(), sorted_transactions)
-            for transaction in filtered_transactions:
-                transactions_tree.insert('', tk.END, values=transaction)
+            # Apply filter based on search text
+            search_text = self.search_entry.get().capitalize()
+            transactions = db.transaction_search_description(search_text, transactions) # returns transactions that match the search text
+            for transaction in transactions:
+                self.transactions_tree.insert('', tk.END, values=transaction)
 
+    def delete_transaction(self):
+        # Delete transaction logic here, including validation
+        transaction_id = self.transaction_id_entry.get()
 
-    # Adding the search entry here to make sure it is defined before calling display_transactions
-
-    #Define placeholders
-    search_placeholder = 'Search by description'
-    placeholder_color = 'grey'
-    normal_color = 'black'
-
-    # Setting up search entry
-    search_entry = tk.Entry(main_window)
-    search_entry.grid(row=4, column=2, columnspan=2, padx=10, pady=5)
-
-    # Filtering variables
-    a_zchecked = tk.BooleanVar()
-    z_achecked = tk.BooleanVar()
-    latest_checked = tk.BooleanVar()
-    earliest_checked = tk.BooleanVar()
-    income_checked = tk.BooleanVar()
-    expense_checked = tk.BooleanVar()
-
-    # Handler functions for the checkbuttons
-
-    def a_zchecked_handler():
-        if a_zchecked.get():
-            z_achecked.set(0)
-            latest_checked.set(0)
-            earliest_checked.set(0)
-        display_transactions()
-
-    def z_achecked_handler():
-        if z_achecked.get():
-            a_zchecked.set(0)
-            latest_checked.set(0)
-            earliest_checked.set(0)
-        display_transactions()
-
-    def latest_checked_handler():
-        if latest_checked.get():
-            earliest_checked.set(0)
-            a_zchecked.set(0)
-            z_achecked.set(0)
-        display_transactions()
-
-    def earliest_checked_handler():
-        if earliest_checked.get():
-            latest_checked.set(0)
-            a_zchecked.set(0)
-            z_achecked.set(0)
-        display_transactions()
-
-    def income_checked_handler():
-        if income_checked.get():
-            expense_checked.set(0)
-        display_transactions()
-
-    def expense_checked_handler():
-        if expense_checked.get():
-            income_checked.set(0)
-        display_transactions()
-
-    # Set up a filter reset function
-    def reset_filter():
-        a_zchecked.set(0)
-        z_achecked.set(0)
-        latest_checked.set(0)
-        earliest_checked.set(0)
-        income_checked.set(0)
-        expense_checked.set(0)
-        display_transactions()
-
-    # Setting up a reset filter button
-    reset_button = tk.Button(main_window, text='Reset Filter', command=reset_filter)
-    reset_button.grid(row=4, column=1, padx=10, pady=5)
-    # Setting up a filter search menu button
-    sort_menu = tk.Menu(main_window, tearoff=0)
-
-    # to do with description
-    sort_menu.add_checkbutton(label='A-Z', onvalue=True, offvalue=False, variable=a_zchecked, command=a_zchecked_handler) # Later add a command to sort A-Z
-    sort_menu.add_checkbutton(label='Z-A', onvalue=True, offvalue=False, variable=z_achecked, command=z_achecked_handler) # Later add a command to sort Z-A
-    # To do with date
-    sort_menu.add_checkbutton(label='Latest', onvalue=True, offvalue=False, variable=latest_checked, command=latest_checked_handler) # Later add a command to filter by date
-    sort_menu.add_checkbutton(label='Earliest', onvalue=True, offvalue=False, variable=earliest_checked, command=earliest_checked_handler) # Later add a command to filter by date
-    # add separator
-    sort_menu.add_separator()
-    # to do with income and expense
-    sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False, variable=income_checked, command=income_checked_handler)
-    sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False, variable=expense_checked, command=expense_checked_handler)
-
-    sort_button = tk.Button(main_window, text='Filter', command=lambda: sort_menu.post(sort_button.winfo_rootx(), sort_button.winfo_rooty() + sort_button.winfo_height()))
-    sort_button.grid(row=4, column=0, padx=10, pady=5)
-    sort_button.bind('<Button-1>', lambda event: sort_menu.post(event.x_root, event.y_root))
-
-
-
-    # Bind the search entry to the key release event
-    #search_entry.bind('<KeyRelease>', display_transactions())
-
-    # Function to add the placeholder text
-    def add_placeholder(event=None):
-        if not search_entry.get():
-            search_entry.insert(0, search_placeholder)
-            search_entry.config(fg=placeholder_color)
-
-    # Function to remove the placeholder text
-    def remove_placeholder(event=None):
-        if search_entry.get() == search_placeholder:
-            search_entry.delete(0, tk.END)
-            search_entry.config(fg=normal_color)
-
-    # Bind events to the entry
-    search_entry.bind('<FocusIn>', remove_placeholder)
-    search_entry.bind('<FocusOut>', add_placeholder)
-    search_entry.bind('<KeyRelease>', lambda event: display_transactions())
-
-    add_placeholder() # Add the placeholder initially
-
-    def delete_transaction():
-        transaction_id = int(transaction_id_entry.get())
-        # validate the transaction id
-        if validate.is_positive_number(transaction_id) == False:
-            messagebox.showerror('Error', 'Transaction ID isnt valid')
+        # Validate transaction ID
+        if self.validate.is_positive_number(transaction_id) == False:
+            messagebox.showerror('Error', 'Please enter a valid transaction ID')
             return
+
         # Check if transaction exists
-        if db.transaction_exists(transaction_id) == False:
+        transaction_id = int(transaction_id)
+        if db.transaction_exists(self.current_user_id) == False:
             messagebox.showerror('Error', 'Transaction does not exist')
             return
-        # Check if the transaction is the user's transaction
-        if db.belongs_to_user(current_user_id, transaction_id) == False:
-            messagebox.showerror('Error', 'Transaction does not belong to you')
+
+        # Check if transaction belongs to user
+        if db.belongs_to_user(self.current_user_id, transaction_id) == False:
+            messagebox.showerror('Error', 'Transaction does not belong to user')
             return
+
+        # Remove transaction from database and refresh view
         db.delete_transaction(transaction_id)
-        display_transactions()
-        update_summary()
-        clear_entries()
+        self.display_transactions()
+        self.update_summary()
+        self.clear_entries()
 
-    # Setting up transaction delete entry
-    transaction_id_label = tk.Label(main_window, text='Transaction ID to delete: ')
-    transaction_id_label.grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
-    transaction_id_entry = tk.Entry(main_window)
-    transaction_id_entry.grid(row=6, column=1, padx=10, pady=5)
-    # Setting up delete button
-    delete_button = tk.Button(main_window, text='Delete Transaction', command=delete_transaction)
-    delete_button.grid(row=6, column=2, columnspan=2, pady=10)
+    def reset_filter(self):
+        # Reset sorting and filters
+        self.a_zchecked.set(0)
+        self.z_achecked.set(0)
+        self.latestchecked.set(0)
+        self.oldestchecked.set(0)
+        self.incomechecked.set(0)
+        self.expensechecked.set(0)
+        self.display_transactions()
 
-    # Adding export button under the delete button
-    export_button = tk.Button(main_window, text='Export All Transactions', command=export.export_transactions_to_csv)
-    export_button.grid(row=7, column=0, columnspan=4, pady=10)
 
-    ### Summary section ###
-    summary_label = tk.Label(main_window, text='Transaction summary', font=('Helvetica', 14))
-    summary_label.grid(row=8, column=0, columnspan=4, pady=10)
-
-    summary_txt = tk.Text(main_window, width=40, height=5)
-    summary_txt.grid(row=9, column=0, columnspan=4, pady=20)
-
-    def update_summary():
-        transactions = db.get_transactions(current_user_id)
-        total_income = 0
-        total_expenses = 0
+    def update_summary(self):
+        # Fetch transactions from the database and calculate totals
+        transactions = db.get_transactions(self.current_user_id) # Second item in tuple is the amount
+        self.total_income = 0
+        self.total_expense = 0
+        self.balance = 0
 
         for transaction in transactions:
-            amount = transaction[2]
-            if amount > 0:
-                total_income += amount
+            if transaction[2] > 0: # If the amount is greater than 0, it is income
+                self.total_income += transaction[2]
             else:
-                total_expenses += -amount # Minus because we need to make expenses positive for display
-        # Work out balance
-        balance = total_income - total_expenses
+                self.total_expense += transaction[2]
 
-        summary_txt.delete(1.0, tk.END)
-        summary_txt.insert(tk.END, f'Total income: {total_income} \n')
-        summary_txt.insert(tk.END, f'Total expenses: {total_expenses} \n')
-        summary_txt.insert(tk.END, f'Balance: {balance}')
+        self.balance = self.total_income + self.total_expense
+        # Update summary text widget with totals and balance
+        self.summary_txt.delete(1.0, tk.END)
+        self.summary_txt.insert(tk.END, f'Total Income: £{self.total_income:.2f}\n')
+        self.summary_txt.insert(tk.END, f'Total Expense: £{self.total_expense:.2f}\n')
+        self.summary_txt.insert(tk.END, f'Balance: £{self.balance:.2f}')
 
-    display_transactions() # Shpws all existing transactions
+    def add_placeholder(self, event=None):
+        if not self.search_entry.get():
+            self.search_entry.insert(0, self.search_placeholder)
+            self.search_entry.config(fg=self.placeholder_color)
 
-    update_summary() # Update the summary initially
+    def remove_placeholder(self, event=None):
+        if self.search_entry.get() == self.search_placeholder:
+            self.search_entry.delete(0, tk.END)
+            self.search_entry.config(fg=self.normal_color)
 
-    # make root window show again when this window is closed
-    def on_closing(window):
-        window.withdraw()
-        root.deiconify()
+    def a_zchecked_handler(self):
+        if self.a_zchecked.get():
+            self.z_achecked.set(0)
+            self.latestchecked.set(0)
+            self.oldestchecked.set(0)
+            self.display_transactions()
 
-    main_window.protocol("WM_DELETE_WINDOW", lambda: on_closing(main_window))
+    def z_achecked_handler(self):
+        if self.z_achecked.get():
+            self.a_zchecked.set(0)
+            self.latestchecked.set(0)
+            self.oldestchecked.set(0)
+            self.display_transactions()
+
+    def latest_checked_handler(self):
+        if self.latestchecked.get():
+            self.oldestchecked.set(0)
+            self.a_zchecked.set(0)
+            self.z_achecked.set(0)
+            self.display_transactions()
+
+    def oldest_checked_handler(self):
+        if self.oldestchecked.get():
+            self.latestchecked.set(0)
+            self.a_zchecked.set(0)
+            self.z_achecked.set(0)
+            self.display_transactions()
+
+    def income_checked_handler(self):
+        if self.incomechecked.get():
+            self.expensechecked.set(0)
+            self.display_transactions()
+
+    def expense_checked_handler(self):
+        if self.expensechecked.get():
+            self.incomechecked.set(0)
+            self.display_transactions()
+
+    def on_closing(self):
+        self.main_window.withdraw()
+        self.root.deiconify()
 
 if __name__ == '__main__':
     root = tk.Tk()
-    create_main_window(root, 1)
+    root.withdraw()
+    main_window = MainWindow(tk.Toplevel(root), current_user_id=1, root=root)
     root.mainloop()

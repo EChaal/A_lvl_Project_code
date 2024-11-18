@@ -29,6 +29,8 @@ class MainWindow:
         self.setup_transactions_tree()
         self.display_transactions()
         self.update_summary()
+        self.add_placeholder()
+
 
         # Make root window show again when this window is closed
         self.main_window.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -56,20 +58,54 @@ class MainWindow:
         self.date_entry.grid(row=3, column=1, padx=10, pady=5)
 
         # Buttons
-        tk.Button(self.main_window, text='Add Transaction', command=self.add_transaction).grid(row=3, column=2, columnspan=2, padx=10, pady=5)
-        tk.Button(self.main_window, text='Reset Filter', command=self.reset_filter).grid(row=4, column=1, padx=10, pady=5)
-        tk.Button(self.main_window, text='Delete Transaction', command=self.delete_transaction).grid(row=6, column=2, columnspan=2, pady=10)
-        tk.Button(self.main_window, text='Export All Transactions', command=export.export_transactions_to_csv).grid(row=7, column=0, columnspan=4, pady=10)
+        self.add_transaction_buitton = tk.Button(self.main_window, text='Add Transaction', command=self.add_transaction).grid(row=3, column=2, columnspan=2, padx=10, pady=5)
+        self.reset_filter_button = tk.Button(self.main_window, text='Reset Filter', command=self.reset_filter).grid(row=4, column=1, padx=10, pady=5)
+        self.delete_transaction_button = tk.Button(self.main_window, text='Delete Transaction', command=self.delete_transaction).grid(row=6, column=2, columnspan=2, pady=10)
+        self.export_transactions_button = tk.Button(self.main_window, text='Export All Transactions', command=export.export_transactions_to_csv).grid(row=7, column=0, columnspan=4, pady=10)
 
         # Summary label
-        tk.Label(self.main_window, text='Transaction summary', font=('Helvetica', 14)).grid(row=8, column=0, columnspan=4, pady=10)
+        self.summary_label = tk.Label(self.main_window, text='Transaction summary', font=('Helvetica', 14)).grid(row=8, column=0, columnspan=4, pady=10)
         self.summary_txt = tk.Text(self.main_window, width=40, height=5)
         self.summary_txt.grid(row=9, column=0, columnspan=4, pady=20)
 
         # Transaction ID field for deletion
-        tk.Label(self.main_window, text='Transaction ID to delete: ').grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
+        self.transaction_delete_label = tk.Label(self.main_window, text='Transaction ID to delete: ').grid(row=6, column=0, padx=10, pady=5, sticky=tk.W)
         self.transaction_id_entry = tk.Entry(self.main_window)
         self.transaction_id_entry.grid(row=6, column=1, padx=10, pady=5)
+
+        # Define placeholders and colors for search entry
+        self.search_placeholder = 'Search by description'
+        self.placeholder_color = 'grey'
+        self.normal_color = 'black'
+
+        # Search entry
+        self.search_entry = tk.Entry(self.main_window)
+        self.search_entry.grid(row=4, column=2, columnspan=2, padx=10, pady=5)
+
+        # bind search entry to placeholder functions
+        # Bind events to the entry
+        self.search_entry.bind('<FocusIn>', self.remove_placeholder)
+        self.search_entry.bind('<FocusOut>', self.add_placeholder)
+        self.search_entry.bind('<KeyRelease>', lambda event: self.display_transactions())
+
+        # Set up sort menu
+        self.sort_menu = tk.Menu(self.main_window)
+
+        self.sort_menu.add_checkbutton(label='A-Z', onvalue=True, offvalue=False, variable=self.a_zchecked, command=self.a_zchecked_handler) # Later add a command to sort A-Z
+        self.sort_menu.add_checkbutton(label='Z-A', onvalue=True, offvalue=False, variable=self.z_achecked, command=self.z_achecked_handler) # Later add a command to sort Z-A
+
+        self.sort_menu.add_checkbutton(label='Latest', onvalue=True, offvalue=False, variable=self.latestchecked, command=self.latest_checked_handler) # Later add a command to filter by date
+        self.sort_menu.add_checkbutton(label='Oldest', onvalue=True, offvalue=False, variable=self.oldestchecked, command=self.oldest_checked_handler) # Later add a command to filter by date
+
+        self.sort_menu.add_separator()
+
+        self.sort_menu.add_checkbutton(label='Income', onvalue=True, offvalue=False, variable=self.incomechecked, command=self.income_checked_handler)
+        self.sort_menu.add_checkbutton(label='Expense', onvalue=True, offvalue=False, variable=self.expensechecked, command=self.expense_checked_handler)
+
+        # Filter button that will have the sort menu as a dropdown
+        self.filter_button = tk.Button(self.main_window, text='Filter', command=lambda: self.sort_menu.post(self.filter_button.winfo_rootx(), self.filter_button.winfo_rooty() + self.filter_button.winfo_height()))
+        self.filter_button.grid(row=4, column=0, padx=10, pady=5)
+        self.filter_button.bind('<Button-1>', lambda event: self.sort_menu.post(event.x_root, event.y_root))
 
     def setup_transactions_tree(self):
         columns = ('ID', 'Description', 'Amount', 'Date')
@@ -238,11 +274,60 @@ class MainWindow:
         self.summary_txt.insert(tk.END, f'Total Expense: £{self.total_expense:.2f}\n')
         self.summary_txt.insert(tk.END, f'Balance: £{self.balance:.2f}')
 
+    def add_placeholder(self, event=None):
+        if not self.search_entry.get():
+            self.search_entry.insert(0, self.search_placeholder)
+            self.search_entry.config(fg=self.placeholder_color)
+
+    def remove_placeholder(self, event=None):
+        if self.search_entry.get() == self.search_placeholder:
+            self.search_entry.delete(0, tk.END)
+            self.search_entry.config(fg=self.normal_color)
+
+    def a_zchecked_handler(self):
+        if self.a_zchecked.get():
+            self.z_achecked.set(0)
+            self.latestchecked.set(0)
+            self.oldestchecked.set(0)
+            self.display_transactions()
+
+    def z_achecked_handler(self):
+        if self.z_achecked.get():
+            self.a_zchecked.set(0)
+            self.latestchecked.set(0)
+            self.oldestchecked.set(0)
+            self.display_transactions()
+
+    def latest_checked_handler(self):
+        if self.latestchecked.get():
+            self.oldestchecked.set(0)
+            self.a_zchecked.set(0)
+            self.z_achecked.set(0)
+            self.display_transactions()
+
+    def oldest_checked_handler(self):
+        if self.oldestchecked.get():
+            self.latestchecked.set(0)
+            self.a_zchecked.set(0)
+            self.z_achecked.set(0)
+            self.display_transactions()
+
+    def income_checked_handler(self):
+        if self.incomechecked.get():
+            self.expensechecked.set(0)
+            self.display_transactions()
+
+    def expense_checked_handler(self):
+        if self.expensechecked.get():
+            self.incomechecked.set(0)
+            self.display_transactions()
+
     def on_closing(self):
         self.main_window.withdraw()
         self.root.deiconify()
 
 if __name__ == '__main__':
     root = tk.Tk()
+    root.withdraw()
     main_window = MainWindow(tk.Toplevel(root), current_user_id=1, root=root)
     root.mainloop()
