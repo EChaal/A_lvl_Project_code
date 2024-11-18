@@ -149,12 +149,16 @@ class MainWindow:
             return
 
         # Validate amount
-        if self.validate.is_non_empty_string(amount) == False and self.validate.is_positive_number(amount) == False and self.validate.has_two_decimal_places(amount) == False:
+        if self.validate.is_non_empty_string(amount) == False or self.validate.is_positive_number(float(amount)) == False:
             messagebox.showerror('Error', 'Please enter a valid amount')
             return
 
+        if self.validate.max_number(float(amount), 999999999) == False:
+            messagebox.showerror('Error', 'Please enter a reasonable amount')
+            return
+
         # Validate date
-        if self.validate.in_future(date) == False:
+        if self.validate.in_future(date):
             messagebox.showerror('Error', 'Cannot enter date in the future')
             return
 
@@ -221,14 +225,20 @@ class MainWindow:
         # Delete transaction logic here, including validation
         transaction_id = self.transaction_id_entry.get()
 
+        try:
+            transaction_id = int(transaction_id)
+        except ValueError:
+            messagebox.showerror('Error', 'Please enter a valid transaction ID')
+            return
+
         # Validate transaction ID
         if self.validate.is_positive_number(transaction_id) == False:
             messagebox.showerror('Error', 'Please enter a valid transaction ID')
             return
 
         # Check if transaction exists
-        transaction_id = int(transaction_id)
-        if db.transaction_exists(self.current_user_id) == False:
+
+        if db.transaction_exists(transaction_id) == False:
             messagebox.showerror('Error', 'Transaction does not exist')
             return
 

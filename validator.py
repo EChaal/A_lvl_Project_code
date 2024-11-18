@@ -19,7 +19,19 @@ class DataValidator:
         return isinstance(data, (int, float)) and data >= 0  # Allow zero as well
 
     def is_in_range(self, min_value, max_value, data):
-        return isinstance(data, (int, float)) and min_value <= data <= max_value
+        if isinstance(data, (int, float)):
+            return min_value <= data <= max_value
+        return False
+
+    def max_number(self, data, max_value):
+        if isinstance(data, (int, float)):
+            return data <= max_value
+        return False
+
+    def min_number(self, data, min_value):
+        if isinstance(data, (int, float)):
+            return data >= min_value
+        return False
 
     def is_valid_email(self, data):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

@@ -100,12 +100,14 @@ def belongs_to_user(user_id, transaction_id):
     return transaction is not None
 
 def transaction_exists(transaction_id):
+    #print(transaction_id)
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM transactions WHERE id = ?', (transaction_id,))
     transaction = cursor.fetchone()
     conn.close()
-    return transaction is not None
+    print(transaction)
+    return bool(transaction)
 
 def create_user_table():
     # Create a table for users if it doesn't exist
