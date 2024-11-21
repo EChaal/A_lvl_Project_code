@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 import database as db
-import globals
 from validator import DataValidator
 import export
 
@@ -30,7 +29,6 @@ class MainWindow:
         self.display_transactions()
         self.update_summary()
         self.add_placeholder()
-
 
         # Make root window show again when this window is closed
         self.main_window.protocol("WM_DELETE_WINDOW", self.on_closing)
