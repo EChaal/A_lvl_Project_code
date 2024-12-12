@@ -1,5 +1,5 @@
 import tkinter as tk
-from login_gui import create_welcome_window
+from login_gui import create_login_window
 from database import create_table, create_user_table
 
 def Main():
@@ -15,7 +15,7 @@ def Main():
     root.title("Personal Finance Tracker - Welcome")
 
     # Create a welcome window
-    create_welcome_window(root)
+    create_login_window(root)
 
     # Start the Tkinter main loop
     root.resizable(False, False)
@@ -26,6 +26,8 @@ def Main():
 if __name__ == "__main__":
     Main()
 
-    # Add a toolbar on main window with buttons for settings, logout, and help
-    # Add 2FA to the application
-    # Add a way to view a summary of transactions
+    # Log in only
+    # main window
+    # first 3 users are admin
+    # admin can add new users
+    # admin can delete users

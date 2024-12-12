@@ -3,3 +3,9 @@
 current_user_id = None
 otp = None
 current_user = None
+
+font_size = 12
+font_color = "black"
+bg_color = "white"
+
+theme = "light"

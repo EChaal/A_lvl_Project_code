@@ -26,12 +26,10 @@ def create_welcome_window(root):
     register_button.grid(row=1, column=1, padx=10, pady=10)
 
 def create_login_window(root):
-    # hide the root window
-    root.withdraw()
     global current_user_id
     validate = DataValidator()
-    # Create a separate window for login
-    login_window = tk.Toplevel(root)
+    # Now this is the root window
+    login_window = root
     login_window.title('Login')
     login_window.resizable(False, False)
 
@@ -61,7 +59,7 @@ def create_login_window(root):
 
         if user_id:
             globals.current_user_id = user_id  # Set the current_user_id
-            login_window.destroy()  # Close login window
+            login_window.deiconify()  # Close login window (now is root so just hide it)
             main_window = gui.MainWindow(tk.Toplevel(root), globals.current_user_id, root) # Pass the root to create_main_window
         else:
             messagebox.showerror('Error', 'Invalid username or password')
@@ -69,22 +67,12 @@ def create_login_window(root):
     login_button = tk.Button(login_window, text='Login', command=login)
     login_button.grid(row=2, column=0, columnspan=2, pady=10)
 
-    def back_to_welcome(login_window, root):
-        login_window.destroy()
-        root.deiconify()
-
-    back_button = tk.Button(login_window, text='Back', command=lambda:back_to_welcome(login_window, root))
-    back_button.grid(row=3, column=0, columnspan=2, pady=10)
-
     def forgot_password():
         login_window.destroy()
         create_forgot_password_window(root)
 
     forgot_password_button = tk.Button(login_window, text='Forgot Password/Username', command=forgot_password)
-    forgot_password_button.grid(row=4, column=0, columnspan=2, pady=10)
-
-    # handle the close event
-    login_window.protocol('WM_DELETE_WINDOW', lambda:back_to_welcome(login_window, root))
+    forgot_password_button.grid(row=3, column=0, columnspan=2, pady=10)
 
 def create_forgot_password_window(root):
     root.withdraw()

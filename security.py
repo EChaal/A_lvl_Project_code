@@ -12,7 +12,7 @@ def hash_password(password):
     return stored_password.hex()
 
 if __name__ == '__main__':
-    password = 'password123'
+    password = 'passord123'
     hashed_password = hash_password(password)
     print(f'Hashed password: {hashed_password} \n')
     again = hash_password(password)
